@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOMES 안암 — 계약 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #FFCF0D;
+  --navy: #020425;
+  --cream: #F4F2EC;
+  --line: #E7DDC6;
+  --soft: #f6f7f9;
+  --gray: #6F7A83;
+  --font: 'Outfit','Pretendard',-apple-system,sans-serif;
+  --red: #e53e3e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--navy);background:var(--soft);min-height:100vh}
+
+/* NAV */
+nav{background:#fff;border-bottom:1px solid var(--line);height:60px;display:flex;align-items:center;padding:0 28px;position:sticky;top:0;z-index:100}
+.wordmark{font-size:17px;font-weight:800;color:var(--navy);letter-spacing:-0.5px;margin-right:36px;white-space:nowrap;flex-shrink:0}
+.wordmark span{color:var(--gold)}
+.nav-items{display:flex;gap:2px}
+.nav-group{position:relative}
+.nav-btn{display:flex;align-items:center;gap:5px;padding:8px 14px;border-radius:8px;border:none;background:none;font:600 13px var(--font);color:var(--gray);cursor:pointer;transition:all .15s;white-space:nowrap}
+.nav-btn:hover{background:var(--soft);color:var(--navy)}
+.nav-btn.open{background:var(--soft);color:var(--navy)}
+.nav-btn .arrow{font-size:9px;transition:transform .2s}
+.nav-btn.open .arrow{transform:rotate(180deg)}
+.dropdown{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--line);border-radius:10px;min-width:150px;box-shadow:0 4px 16px rgba(0,0,0,.08);opacity:0;pointer-events:none;transition:opacity .15s;z-index:200}
+.dropdown.open{opacity:1;pointer-events:all}
+.dropdown-item{display:block;width:100%;padding:10px 16px;border:none;background:none;font:500 13px var(--font);color:var(--navy);cursor:pointer;text-align:left;transition:background .1s}
+.dropdown-item:hover{background:var(--soft)}
+.dropdown-item:first-child{border-radius:10px 10px 0 0}
+.dropdown-item:last-child{border-radius:0 0 10px 10px}
+.nav-standalone{padding:8px 14px;border-radius:8px;border:none;background:none;font:600 13px var(--font);color:var(--gray);cursor:pointer;transition:all .15s}
+.nav-standalone:hover{background:var(--soft);color:var(--navy)}
+
+/* PAGE */
+.page{display:none;padding:32px 28px;max-width:1100px;margin:0 auto}
+.page.active{display:block}
+.page-header{margin-bottom:28px}
+.page-title{font-size:22px;font-weight:800;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--gray)}
+
+/* SECTION LABEL */
+.section-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:24px 0 12px}
+.section-label:first-child{margin-top:0}
+
+/* CARD */
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px}
+.card+.card{margin-top:14px}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.form-grid.col4{grid-template-columns:1fr 1fr 1fr 1fr}
+.form-full{grid-column:1/-1}
+label{display:block;font-size:11px;font-weight:700;color:var(--gray);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:400 14px var(--font);color:var(--navy);background:#fff;outline:none;transition:border .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--navy)}
+textarea{resize:vertical;min-height:80px}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236F7A83' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.field{display:flex;flex-direction:column}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--line);margin:20px 0}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:9px;border:1px solid transparent;font:600 13px var(--font);cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.btn-primary:hover{background:#f0c200}
+.btn-secondary{background:#fff;color:var(--navy);border-color:var(--line)}
+.btn-secondary:hover{background:var(--soft)}
+.btn-danger{background:#fff;color:var(--red);border-color:#fca5a5}
+.btn-danger:hover{background:#fff5f5}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:7px}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-high{background:#fee2e2;color:#dc2626}
+.badge-mid{background:#fef3c7;color:#d97706}
+.badge-low{background:#dcfce7;color:#16a34a}
+.badge-consult{background:#ede9fe;color:#7c3aed}
+.badge-tour{background:#dbeafe;color:#2563eb}
+.badge-remind{background:#fef9c3;color:#ca8a04}
+.badge-contract{background:#fce7f3;color:#be185d}
+.badge-done{background:#d1fae5;color:#065f46}
+
+/* STATUS PIPELINE — 계약 준비 대상 강조 */
+.pipeline-banner{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pipeline-stat{text-align:center}
+.pipeline-stat .num{font-size:24px;font-weight:800;color:var(--navy)}
+.pipeline-stat .lbl{font-size:11px;color:var(--gray);margin-top:2px}
+.pipeline-divider{width:1px;height:36px;background:var(--line)}
+.pipeline-contract{background:linear-gradient(135deg,#fce7f3 0%,#fff0f8 100%);border:1.5px solid #f9a8d4;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pipeline-contract .pc-num{font-size:28px;font-weight:800;color:#be185d}
+.pipeline-contract .pc-text{font-size:13px;color:#9d174d;line-height:1.5}
+.pipeline-contract .pc-text strong{display:block;font-size:14px;color:#be185d}
+.pipeline-contract .pc-btn{margin-left:auto}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 14px;background:var(--soft);border-bottom:2px solid var(--line);text-align:left;font-weight:700;font-size:11px;color:var(--gray);white-space:nowrap;text-transform:uppercase;letter-spacing:.3px}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.seq{font-weight:700;color:#bbb;font-size:12px}
+.td-name{font-weight:600}
+.td-mono{font-size:12px;color:var(--gray);font-family:'Outfit',monospace}
+td .btn-group{margin-top:0}
+
+/* CONTRACT READY TABLE — 핑크 강조 행 */
+.row-contract td{background:#fff8fb}
+.row-contract:hover td{background:#fdf0f7}
+
+/* MAIL */
+.lang-toggle{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;width:fit-content;margin-bottom:16px}
+.lang-btn{padding:8px 22px;border:none;background:#fff;font:600 13px var(--font);color:var(--gray);cursor:pointer;transition:all .15s}
+.lang-btn.active{background:var(--navy);color:#fff}
+.mail-output{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:20px;font-size:13px;line-height:1.85;white-space:pre-wrap;font-family:'Pretendard',sans-serif;max-height:520px;overflow-y:auto}
+
+/* HISTORY */
+.history-item{border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.history-item:hover{border-color:#aaa}
+.history-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.history-name{font-weight:700;font-size:14px}
+.history-date{font-size:11px;color:var(--gray)}
+
+/* TEMPLATE */
+.tpl-card{border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:10px}
+.tpl-title{font-weight:700;font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.tpl-body{font-size:12px;color:var(--gray);line-height:1.75;white-space:pre-wrap}
+
+/* BACKUP */
+.info-box{background:var(--soft);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.7;margin-bottom:14px}
+.info-box.warn{border-left-color:#e53e3e}
+
+/* RESULT MSG */
+.result-msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:10px;display:none}
+.result-msg.ok{background:#dcfce7;color:#15803d}
+.result-msg.err{background:#fee2e2;color:#dc2626}
+
+/* EMPTY */
+.empty{text-align:center;padding:52px 20px;color:var(--gray)}
+.empty p{font-size:13px;margin-top:8px}
+
+/* SEARCH BAR */
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end}
+.search-bar .field{min-width:180px}
+.search-bar input,.search-bar select{max-width:220px}
+.search-count{font-size:13px;color:var(--gray);align-self:center;white-space:nowrap}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(2,4,37,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.18)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+.modal-title{font-size:17px;font-weight:800}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray);flex-shrink:0}
+.modal-close:hover{background:var(--soft)}
+.modal-body{padding:20px 24px 24px}
+.modal-footer{padding:0 24px 20px;display:flex;gap:8px;justify-content:flex-end}
+
+@media(max-width:700px){
+  .form-grid,.form-grid.col3,.form-grid.col4{grid-template-columns:1fr}
+  nav{padding:0 16px}
+  .page{padding:20px 16px}
+  .modal{max-width:100%;margin:0;border-radius:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- 전역 로딩 -->
+<div id="global-loading" style="position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+  <div style="width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite"></div>
+  <div style="font-size:13px;color:var(--gray);font-weight:600">데이터 불러오는 중...</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<!-- NAV -->
+<nav>
+  <div class="wordmark">HOMES<span>.</span></div>
+  <div class="nav-items">
+    <div class="nav-group" id="ng-inquiry">
+      <button class="nav-btn" onclick="toggleNav('inquiry')">문의 관리 <span class="arrow">▾</span></button>
+      <div class="dropdown" id="dd-inquiry">
+        <button class="dropdown-item" onclick="navTo('reg')">등록</button>
+        <button class="dropdown-item" onclick="navTo('search')">검색</button>
+      </div>
+    </div>
+    <div class="nav-group" id="ng-sales">
+      <button class="nav-btn" onclick="toggleNav('sales')">세일즈 업무 <span class="arrow">▾</span></button>
+      <div class="dropdown" id="dd-sales">
+        <button class="dropdown-item" onclick="navTo('mail')">메일 작성</button>
+        <button class="dropdown-item" onclick="navTo('history')">발송 기록</button>
+        <button class="dropdown-item" onclick="navTo('tpl')">템플릿</button>
+      </div>
+    </div>
+    <button class="nav-standalone" onclick="navTo('backup')">백업 / 복원</button>
+  </div>
+</nav>
+
+<!-- ======================== 등록 ======================== -->
+<div id="page-reg" class="page active">
+  <div class="page-header">
+    <div class="page-title">문의자 등록</div>
+    <div class="page-sub">신규 입주 문의자 정보를 등록합니다.</div>
+  </div>
+
+  <div class="card">
+    <!-- 기본 + 계약 정보 통합 -->
+    <div class="form-grid col3">
+      <div class="field">
+        <label>이름 *</label>
+        <input id="reg-name" type="text" placeholder="홍길동 / Hong Gil-dong">
+      </div>
+      <div class="field">
+        <label>연락처</label>
+        <input id="reg-phone" type="text" placeholder="+82 10-0000-0000">
+      </div>
+      <div class="field">
+        <label>이메일</label>
+        <input id="reg-email" type="email" placeholder="example@email.com">
+      </div>
+      <div class="field">
+        <label>희망 입주일</label>
+        <input id="reg-movein" type="date">
+      </div>
+      <div class="field">
+        <label>선호 타입</label>
+        <select id="reg-type">
+          <option value="">-- 선택 --</option>
+          <option value="WORK">WORK (워크)</option>
+          <option value="SMART STORAGE">SMART STORAGE (수납강화)</option>
+          <option value="MULTI BUNKER">MULTI BUNKER (멀티벙커)</option>
+          <option value="FULL FURNISHED">FULL FURNISHED (풀퍼니시드)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>입주자 구분</label>
+        <select id="reg-resident">
+          <option value="foreign">외국인 (Foreign national)</option>
+          <option value="korean">내국인 (Korean national)</option>
+          <option value="corporate">법인 (Corporate)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>현재 상태</label>
+        <select id="reg-status">
+          <option value="상담중">상담중</option>
+          <option value="투어">투어</option>
+          <option value="리마인드">리마인드</option>
+          <option value="계약 준비">계약 준비</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>중요도</label>
+        <select id="reg-priority">
+          <option value="상">상</option>
+          <option value="중" selected>중</option>
+          <option value="하">하</option>
+        </select>
+      </div>
+      <div class="field form-full" style="grid-column:3/4">
+        <!-- spacer on col3 -->
+      </div>
+      <div class="field form-full">
+        <label>비고</label>
+        <textarea id="reg-memo" placeholder="특이사항, 요청사항 등 자유롭게 입력"></textarea>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="saveProspect()">등록 저장</button>
+      <button class="btn btn-secondary" onclick="clearReg()">초기화</button>
+    </div>
+    <div id="reg-msg" class="result-msg"></div>
+  </div>
+</div>
+
+<!-- ======================== 검색 ======================== -->
+<div id="page-search" class="page">
+  <div class="page-header">
+    <div class="page-title">문의자 검색</div>
+    <div class="page-sub">등록된 문의자를 검색하고 관리합니다. 계약 준비 상태는 별도 섹션에서 확인하세요.</div>
+  </div>
+
+  <!-- 계약 준비 파이프라인 배너 -->
+  <div id="contract-pipeline" class="pipeline-contract" style="margin-bottom:20px">
+    <div>
+      <div class="pc-num" id="contract-count">0</div>
+    </div>
+    <div class="pc-text">
+      <strong>계약 준비 대상</strong>
+      메일 작성이 필요한 문의자입니다.
+    </div>
+    <button class="btn btn-primary btn-sm pc-btn" onclick="showPage('mail')">메일 작성으로 이동</button>
+  </div>
+
+  <!-- 검색 필터 -->
+  <div class="search-bar">
+    <div class="field">
+      <label>이름 검색</label>
+      <input type="text" id="search-name" placeholder="이름 입력..." oninput="renderSearch()">
+    </div>
+    <div class="field">
+      <label>상태 필터</label>
+      <select id="search-status" onchange="renderSearch()">
+        <option value="">전체 상태</option>
+        <option value="상담중">상담중</option>
+        <option value="투어">투어</option>
+        <option value="리마인드">리마인드</option>
+        <option value="계약 준비">계약 준비</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>중요도 필터</label>
+      <select id="search-priority" onchange="renderSearch()">
+        <option value="">전체 중요도</option>
+        <option value="상">상</option>
+        <option value="중">중</option>
+        <option value="하">하</option>
+      </select>
+    </div>
+    <span class="search-count" id="search-count"></span>
+  </div>
+
+  <!-- 일반 문의자 테이블 -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>이름</th>
+            <th>연락처</th>
+            <th>선호 타입</th>
+            <th>희망 입주일</th>
+            <th>상태</th>
+            <th>중요도</th>
+            <th>비고</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="search-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== 메일 작성 ======================== -->
+<div id="page-mail" class="page">
+  <div class="page-header">
+    <div class="page-title">계약 안내 메일 작성</div>
+    <div class="page-sub">계약 준비 상태의 문의자를 선택하거나 직접 입력하여 계약 안내 메일을 생성합니다.</div>
+  </div>
+
+  <!-- 계약 준비 대상 선택 -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="section-label" style="margin-top:0">계약 준비 대상 불러오기</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>문의자 선택</label>
+        <select id="mail-prospect-select" onchange="loadProspect()">
+          <option value="">-- 직접 입력 --</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <span id="mail-prospect-info" style="font-size:12px;color:var(--gray);padding-bottom:10px"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 입주자 + 계약 정보 통합 폼 -->
+  <div class="card">
+    <div class="section-label" style="margin-top:0">입주자 정보</div>
+    <div class="form-grid col3">
+      <div class="field">
+        <label>이름 *</label>
+        <input id="mail-name" type="text" placeholder="홍길동 / Hong Gil-dong">
+      </div>
+      <div class="field">
+        <label>호실 번호 *</label>
+        <input id="mail-room" type="text" placeholder="예: 301">
+      </div>
+      <div class="field">
+        <label>타입</label>
+        <select id="mail-type">
+          <option value="WORK">WORK (워크)</option>
+          <option value="SMART STORAGE">SMART STORAGE (수납강화)</option>
+          <option value="MULTI BUNKER">MULTI BUNKER (멀티벙커)</option>
+          <option value="FULL FURNISHED">FULL FURNISHED (풀퍼니시드)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>입주자 구분</label>
+        <select id="mail-resident">
+          <option value="foreign">외국인 (Foreign national)</option>
+          <option value="korean">내국인 (Korean national)</option>
+          <option value="corporate">법인 (Corporate)</option>
+        </select>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="section-label" style="margin-top:0">계약 정보</div>
+    <div class="form-grid col3">
+      <div class="field">
+        <label>계약 시작일 *</label>
+        <input id="mail-start" type="date">
+      </div>
+      <div class="field">
+        <label>계약 종료일 *</label>
+        <input id="mail-end" type="date">
+      </div>
+      <div class="field">
+        <label>월 임대료 (₩)</label>
+        <input id="mail-rent" type="text" placeholder="예: 550,000">
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="generateMail()">메일 생성</button>
+      <button class="btn btn-secondary" onclick="clearMail()">초기화</button>
+    </div>
+  </div>
+
+  <!-- 메일 출력 -->
+  <div id="mail-output-section" style="display:none;margin-top:16px">
+    <div class="card">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lang-ko" onclick="switchLang('ko')">한국어</button>
+        <button class="lang-btn" id="lang-en" onclick="switchLang('en')">English</button>
+      </div>
+      <div class="mail-output" id="mail-output"></div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="copyMail()">복사</button>
+        <button class="btn btn-secondary" onclick="saveHistory()">발송 기록 저장</button>
+      </div>
+      <div id="mail-msg" class="result-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== 발송 기록 ======================== -->
+<div id="page-history" class="page">
+  <div class="page-header">
+    <div class="page-title">발송 기록</div>
+    <div class="page-sub">생성된 계약 안내 메일 기록입니다.</div>
+  </div>
+  <div id="history-list"></div>
+</div>
+
+<!-- ======================== 템플릿 ======================== -->
+<div id="page-tpl" class="page">
+  <div class="page-header">
+    <div class="page-title">빠른 복사 템플릿</div>
+    <div class="page-sub">자주 쓰는 메시지를 직접 추가·수정·삭제할 수 있습니다.</div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="tpl-ko" onclick="switchTplLang('ko')">한국어</button>
+      <button class="lang-btn" id="tpl-en" onclick="switchTplLang('en')">English</button>
+    </div>
+    <button class="btn btn-primary" onclick="openTplModal()">+ 템플릿 추가</button>
+  </div>
+  <div id="tpl-list"></div>
+</div>
+
+<!-- ======================== 백업/복원 ======================== -->
+<div id="page-backup" class="page">
+  <div class="page-header">
+    <div class="page-title">백업 / 복원</div>
+    <div class="page-sub">데이터를 JSON 파일로 내보내거나 불러옵니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="section-label" style="margin-top:0">데이터 내보내기</div>
+    <div class="info-box">문의자 정보, 발송 기록 전체를 JSON 파일로 다운로드합니다. 기능 추가 전 반드시 백업하세요.</div>
+    <button class="btn btn-primary" onclick="exportData()">JSON 다운로드</button>
+
+    <hr class="divider">
+
+    <div class="section-label">데이터 불러오기</div>
+    <div class="info-box">이전에 다운로드한 백업 파일을 선택하면 기존 데이터에 병합됩니다. (중복 항목 자동 스킵)</div>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">파일 선택</button>
+    <div id="import-msg" class="result-msg"></div>
+
+    <hr class="divider">
+
+    <div class="section-label">전체 데이터 초기화</div>
+    <div class="info-box warn">모든 문의자 정보와 발송 기록이 삭제됩니다. 반드시 백업 후 진행하세요.</div>
+    <button class="btn btn-danger" onclick="clearAllData()">전체 삭제</button>
+  </div>
+</div>
+
+<!-- ======================== 수정 모달 ======================== -->
+<div class="modal-overlay" id="edit-modal-overlay" onclick="closeEditModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">문의자 정보 수정</div>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-grid col3">
+        <div class="field">
+          <label>이름 *</label>
+          <input id="edit-name" type="text" placeholder="홍길동 / Hong Gil-dong">
+        </div>
+        <div class="field">
+          <label>연락처</label>
+          <input id="edit-phone" type="text" placeholder="+82 10-0000-0000">
+        </div>
+        <div class="field">
+          <label>이메일</label>
+          <input id="edit-email" type="email" placeholder="example@email.com">
+        </div>
+        <div class="field">
+          <label>희망 입주일</label>
+          <input id="edit-movein" type="date">
+        </div>
+        <div class="field">
+          <label>선호 타입</label>
+          <select id="edit-type">
+            <option value="">-- 선택 --</option>
+            <option value="WORK">WORK (워크)</option>
+            <option value="SMART STORAGE">SMART STORAGE (수납강화)</option>
+            <option value="MULTI BUNKER">MULTI BUNKER (멀티벙커)</option>
+            <option value="FULL FURNISHED">FULL FURNISHED (풀퍼니시드)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>입주자 구분</label>
+          <select id="edit-resident">
+            <option value="foreign">외국인 (Foreign national)</option>
+            <option value="korean">내국인 (Korean national)</option>
+            <option value="corporate">법인 (Corporate)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>현재 상태</label>
+          <select id="edit-status">
+            <option value="상담중">상담중</option>
+            <option value="투어">투어</option>
+            <option value="리마인드">리마인드</option>
+            <option value="계약 준비">계약 준비</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>중요도</label>
+          <select id="edit-priority">
+            <option value="상">상</option>
+            <option value="중">중</option>
+            <option value="하">하</option>
+          </select>
+        </div>
+        <div class="field form-full">
+          <label>비고</label>
+          <textarea id="edit-memo" placeholder="특이사항, 요청사항 등 자유롭게 입력"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== 템플릿 모달 ======================== -->
+<div class="modal-overlay" id="tpl-modal-overlay" onclick="closeTplModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="tpl-modal-title">템플릿 추가</div>
+      <button class="modal-close" onclick="closeTplModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tpl-edit-id">
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="field">
+          <label>제목 (한국어)</label>
+          <input id="tpl-title-ko" type="text" placeholder="예: 투어 안내">
+        </div>
+        <div class="field">
+          <label>제목 (English)</label>
+          <input id="tpl-title-en" type="text" placeholder="e.g. Tour Inquiry">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>내용 (한국어)</label>
+        <textarea id="tpl-body-ko" style="min-height:140px" placeholder="한국어 메시지 내용을 입력하세요."></textarea>
+      </div>
+      <div class="field">
+        <label>내용 (English)</label>
+        <textarea id="tpl-body-en" style="min-height:140px" placeholder="Enter the English message content."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeTplModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveTpl()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======================== SUPABASE CONFIG ========================
+const SB_URL = 'https://zyeumxtemfmkbpviuxeo.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5ZXVteHRlbWZta2Jwdml1eGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NTkzNTUsImV4cCI6MjA5NzQzNTM1NX0.5v8SehoApGrqDwuvtwNRWJcWaStcPnS94AD3FO33ya4';
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SB_KEY,
+  'Authorization': `Bearer ${SB_KEY}`,
+  'Prefer': 'return=representation'
+};
+
+// 로딩 상태 관리
+let _prospects = [];
+let _history = [];
+
+async function sbGet(table){
+  const order = table === 'mail_history' ? 'saved_at.desc' : 'seq.asc';
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?order=${order}`, { headers: HEADERS });
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbInsert(table, row){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST', headers: HEADERS, body: JSON.stringify(row)
+  });
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbUpdate(table, id, row){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH', headers: HEADERS, body: JSON.stringify(row)
+  });
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbDelete(table, id){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE', headers: { ...HEADERS, 'Prefer': '' }
+  });
+  if(!res.ok) throw new Error(await res.text());
+}
+
+// 초기 데이터 로드 (sessionStorage 캐시로 속도 개선)
+async function loadAllData(){
+  // 세션 캐시 확인 — 같은 탭에서 재방문 시 즉시 표시
+  const cached = sessionStorage.getItem('hc_cache');
+  if(cached){
+    try{
+      const {prospects, history} = JSON.parse(cached);
+      _prospects = prospects || [];
+      _history   = history   || [];
+      showLoading(false);
+      renderSearch(); populateProspectSelect(); renderTpl();
+    }catch{}
+  }
+  // 백그라운드에서 최신 데이터 갱신
+  try {
+    [_prospects, _history] = await Promise.all([
+      sbGet('prospects'),
+      sbGet('mail_history')
+    ]);
+    sessionStorage.setItem('hc_cache', JSON.stringify({prospects:_prospects, history:_history}));
+  } catch(e){
+    if(!cached){
+      alert('Supabase 연결 오류가 발생했습니다.\n' + e.message);
+    }
+  }
+  showLoading(false);
+  renderSearch(); populateProspectSelect();
+}
+
+function refreshCache(){
+  sessionStorage.setItem('hc_cache', JSON.stringify({prospects:_prospects, history:_history}));
+}
+function showLoading(on){
+  let el = document.getElementById('global-loading');
+  if(!el) return;
+  el.style.display = on ? 'flex' : 'none';
+}
+
+// ======================== NAV ========================
+function toggleNav(id){
+  const btn = document.querySelector(`#ng-${id} .nav-btn`);
+  const dd  = document.getElementById(`dd-${id}`);
+  const isOpen = dd.classList.contains('open');
+  // 모두 닫기
+  document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('open'));
+  if(!isOpen){
+    dd.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+function navTo(id){
+  // 드롭다운 닫기
+  document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('open'));
+  showPage(id);
+}
+// 외부 클릭 시 드롭다운 닫기
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.nav-group')){
+    document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('open'));
+  }
+});
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(id==='search') renderSearch();
+  if(id==='history') renderHistory();
+  if(id==='tpl') renderTpl();
+  if(id==='mail'){ populateProspectSelect(); updateContractPipeline(); }
+}
+
+// ======================== 계약 준비 파이프라인 ========================
+function updateContractPipeline(){
+  const contractReady = _prospects.filter(p=>p.status==='계약 준비');
+  const el = document.getElementById('contract-count');
+  if(el) el.textContent = contractReady.length;
+}
+
+// ======================== 등록 ========================
+async function saveProspect(){
+  const name = document.getElementById('reg-name').value.trim();
+  if(!name){ showMsg('reg-msg','이름을 입력해주세요.','err'); return; }
+  const seq = _prospects.length > 0 ? Math.max(..._prospects.map(p=>p.seq||0))+1 : 1;
+  const row = {
+    id: Date.now().toString(),
+    seq,
+    name,
+    phone: document.getElementById('reg-phone').value.trim(),
+    email: document.getElementById('reg-email').value.trim(),
+    movein: document.getElementById('reg-movein').value || null,
+    type: document.getElementById('reg-type').value,
+    resident: document.getElementById('reg-resident').value,
+    status: document.getElementById('reg-status').value,
+    priority: document.getElementById('reg-priority').value,
+    memo: document.getElementById('reg-memo').value.trim()
+  };
+  try {
+    showMsg('reg-msg','저장 중...','ok');
+    await sbInsert('prospects', row);
+    _prospects.push(row);
+    refreshCache();
+    showMsg('reg-msg','등록되었습니다.','ok');
+    clearReg();
+  } catch(e){
+    showMsg('reg-msg','저장 실패: '+e.message,'err');
+  }
+}
+
+function clearReg(){
+  ['reg-name','reg-phone','reg-email','reg-movein','reg-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('reg-type').value='';
+  document.getElementById('reg-status').value='상담중';
+  document.getElementById('reg-priority').value='중';
+  document.getElementById('reg-resident').value='foreign';
+}
+
+// ======================== 검색 ========================
+function renderSearch(){
+  updateContractPipeline();
+  const name = document.getElementById('search-name').value||'';
+  const status = document.getElementById('search-status').value||'';
+  const priority = document.getElementById('search-priority').value||'';
+  let data = _prospects.filter(p=>
+    (!name || p.name.toLowerCase().includes(name.toLowerCase())) &&
+    (!status || p.status===status) &&
+    (!priority || p.priority===priority)
+  );
+  document.getElementById('search-count').textContent = `총 ${data.length}명`;
+  const tbody = document.getElementById('search-tbody');
+  if(!tbody) return;
+  if(!data.length){
+    tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><p>검색 결과가 없습니다</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(p=>`
+    <tr class="${p.status==='계약 준비'?'row-contract':''}">
+      <td class="seq">#${p.seq||'-'}</td>
+      <td class="td-name">${esc(p.name)}</td>
+      <td class="td-mono">${esc(p.phone||'-')}</td>
+      <td style="font-size:12px">${esc(p.type||'-')}</td>
+      <td class="td-mono">${p.movein||'-'}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td>${priorityBadge(p.priority)}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--gray)">${esc(p.memo||'-')}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          ${p.status==='계약 준비'?`<button class="btn btn-primary btn-sm" onclick="toMail('${p.id}')">메일</button>`:''}
+          <button class="btn btn-secondary btn-sm" onclick="openEditModal('${p.id}')">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProspect('${p.id}')">삭제</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function deleteProspect(id){
+  if(!confirm('삭제하시겠습니까?')) return;
+  try {
+    await sbDelete('prospects', id);
+    _prospects = _prospects.filter(p=>p.id!==id);
+    refreshCache();
+    renderSearch();
+  } catch(e){ alert('삭제 실패: '+e.message); }
+}
+
+function openEditModal(id){
+  const p = _prospects.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('edit-id').value = p.id;
+  document.getElementById('edit-name').value = p.name||'';
+  document.getElementById('edit-phone').value = p.phone||'';
+  document.getElementById('edit-email').value = p.email||'';
+  document.getElementById('edit-movein').value = p.movein||'';
+  document.getElementById('edit-type').value = p.type||'';
+  document.getElementById('edit-resident').value = p.resident||'foreign';
+  document.getElementById('edit-status').value = p.status||'상담중';
+  document.getElementById('edit-priority').value = p.priority||'중';
+  document.getElementById('edit-memo').value = p.memo||'';
+  document.getElementById('edit-modal-overlay').classList.add('open');
+}
+
+function closeEditModal(e){
+  if(e && e.target !== document.getElementById('edit-modal-overlay')) return;
+  document.getElementById('edit-modal-overlay').classList.remove('open');
+}
+
+async function saveEdit(){
+  const id = document.getElementById('edit-id').value;
+  const name = document.getElementById('edit-name').value.trim();
+  if(!name){ alert('이름을 입력해주세요.'); return; }
+  const row = {
+    name,
+    phone: document.getElementById('edit-phone').value.trim(),
+    email: document.getElementById('edit-email').value.trim(),
+    movein: document.getElementById('edit-movein').value || null,
+    type: document.getElementById('edit-type').value,
+    resident: document.getElementById('edit-resident').value,
+    status: document.getElementById('edit-status').value,
+    priority: document.getElementById('edit-priority').value,
+    memo: document.getElementById('edit-memo').value.trim(),
+    updated_at: new Date().toISOString()
+  };
+  try {
+    await sbUpdate('prospects', id, row);
+    const i = _prospects.findIndex(x=>x.id===id);
+    if(i!==-1) _prospects[i] = { ..._prospects[i], ...row };
+    refreshCache();
+    document.getElementById('edit-modal-overlay').classList.remove('open');
+    renderSearch();
+  } catch(e){ alert('수정 실패: '+e.message); }
+}
+
+function toMail(id){
+  showPage('mail');
+  setTimeout(()=>{
+    document.getElementById('mail-prospect-select').value = id;
+    loadProspect();
+  }, 100);
+}
+
+// ======================== 메일 작성 ========================
+let currentLang = 'ko';
+let currentMailData = null;
+
+function populateProspectSelect(){
+  const sel = document.getElementById('mail-prospect-select');
+  const ready = _prospects.filter(p=>p.status==='계약 준비');
+  const others = _prospects.filter(p=>p.status!=='계약 준비');
+  sel.innerHTML = '<option value="">-- 직접 입력 --</option>';
+  if(ready.length){
+    const g = document.createElement('optgroup');
+    g.label = '계약 준비 대상';
+    ready.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.textContent=`#${p.seq} ${p.name} (${p.type||'-'})`; g.appendChild(o); });
+    sel.appendChild(g);
+  }
+  if(others.length){
+    const g = document.createElement('optgroup');
+    g.label = '기타 문의자';
+    others.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.textContent=`#${p.seq} ${p.name} (${p.status})`; g.appendChild(o); });
+    sel.appendChild(g);
+  }
+  updateContractPipeline();
+}
+
+function loadProspect(){
+  const id = document.getElementById('mail-prospect-select').value;
+  const infoEl = document.getElementById('mail-prospect-info');
+  if(!id){ if(infoEl) infoEl.textContent=''; return; }
+  const p = _prospects.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('mail-name').value = p.name;
+  if(p.type) document.getElementById('mail-type').value = p.type;
+  document.getElementById('mail-resident').value = p.resident||'foreign';
+  if(p.movein) document.getElementById('mail-start').value = p.movein;
+  if(infoEl) infoEl.textContent = `${p.email||''} ${p.phone||''}`.trim();
+}
+
+function generateMail(){
+  const name = document.getElementById('mail-name').value.trim();
+  const room = document.getElementById('mail-room').value.trim();
+  const start = document.getElementById('mail-start').value;
+  const end = document.getElementById('mail-end').value;
+  const rent = document.getElementById('mail-rent').value.trim();
+  const type = document.getElementById('mail-type').value;
+  const resident = document.getElementById('mail-resident').value;
+  if(!name||!room||!start||!end){ alert('이름, 호실, 계약기간은 필수입니다.'); return; }
+  currentMailData = {name,room,start,end,rent,type,resident};
+  currentLang = 'ko';
+  document.getElementById('lang-ko').classList.add('active');
+  document.getElementById('lang-en').classList.remove('active');
+  document.getElementById('mail-output').textContent = buildMail('ko', currentMailData);
+  document.getElementById('mail-output-section').style.display='block';
+}
+
+function switchLang(lang){
+  currentLang = lang;
+  document.getElementById('lang-ko').classList.toggle('active', lang==='ko');
+  document.getElementById('lang-en').classList.toggle('active', lang==='en');
+  if(currentMailData) document.getElementById('mail-output').textContent = buildMail(lang, currentMailData);
+}
+
+function buildMail(lang, d){
+  const fmt = s => s ? new Date(s).toLocaleDateString(lang==='ko'?'ko-KR':'en-US',{year:'numeric',month:'long',day:'numeric'}) : '-';
+  const docLine = d.resident==='korean'
+    ? (lang==='ko' ? '- 신분증 사본 (주민등록증 또는 운전면허증)' : '- Copy of national ID (resident registration card or driver\'s license)')
+    : d.resident==='corporate'
+    ? (lang==='ko' ? '- 사업자등록증\n- 실거주자 확인 서류' : '- Business registration certificate\n- Documents verifying the resident\'s relationship with the company')
+    : (lang==='ko' ? '- 외국인등록증(ARC) 사본 또는 여권 사본' : '- Copy of ARC (Alien Registration Card) or passport');
+
+  if(lang==='ko') return `안녕하세요, ${d.name}님.
+
+홈즈 안암(Homes Anam)에 관심을 가져주셔서 감사합니다.
+아래는 계약 진행 절차를 안내해 드립니다. 순서대로 진행해 주시면 됩니다.
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 1] 기본 정보 확인
+━━━━━━━━━━━━━━━━━━━━━━
+- 입주자 성함 : ${d.name}
+- 호실 번호   : ${d.room}호
+- 타입       : ${d.type}
+- 계약 기간   : ${fmt(d.start)} ~ ${fmt(d.end)}
+${d.rent ? `- 월 임대료   : ₩${d.rent}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 2] 서류 제출
+━━━━━━━━━━━━━━━━━━━━━━
+아래 서류를 이메일 또는 메시지로 제출해 주세요.
+
+${docLine}
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 3] 계약서 서명 (Modusign)
+━━━━━━━━━━━━━━━━━━━━━━
+온라인 계약 플랫폼 Modusign을 통해 계약서를 발송해 드립니다.
+서명 전 아래 항목을 꼼꼼히 확인해 주세요.
+
+- 호실 번호 및 타입
+- 계약 기간 (입주일 / 퇴실일)
+- 월 임대료 및 납부 방법
+- 보증금 금액
+- 보증금 · 임대료 · 관리비 납부 계좌
+
+※ 보증금 환불은 국내 계좌로만 가능하며, 해외 송금은 지원되지 않습니다.
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 4] 보증금 및 임대료 납부
+━━━━━━━━━━━━━━━━━━━━━━
+보증금 합계 : ₩2,000,000 (2회 분납)
+
+1차 납부 (계약서 서명 시) : ₩1,000,000
+2차 납부 (입주 당일)       : ₩1,000,000 + 첫 달 임대료 및 관리비
+
+납부 일정 및 계좌 정보는 계약서 서명 후 별도로 안내해 드립니다.
+
+※ 주말 또는 공휴일 입주 시, 직전 영업일까지 납부 및 입금 확인을 완료해 주세요.
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 5] 웰컴 가이드 수령
+━━━━━━━━━━━━━━━━━━━━━━
+최종 납부 전, 이메일로 웰컴 가이드를 발송해 드립니다.
+공용 시설 이용 방법, 생활 규칙, 계약 갱신 및 퇴실 절차 등이 포함되어 있으니 반드시 확인해 주세요.
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 6] 비밀번호 수령 및 입주
+━━━━━━━━━━━━━━━━━━━━━━
+모든 납부가 확인되면 카카오톡 채널을 통해 도어 비밀번호를 발송해 드립니다.
+(카카오톡 이용이 어려우신 경우, 대체 방법으로 안내해 드립니다.)
+
+조기 비행편 또는 일정이 빠듯한 경우, 여유 있게 미리 납부해 주시기 바랍니다.
+
+감사합니다.
+홈즈 안암 운영팀 드림
+jklee@homes.global`;
+
+  return `Dear ${d.name},
+
+Thank you for your interest in Homes Anam.
+Please find below the step-by-step process for completing your lease agreement.
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 1] Confirmed Details
+━━━━━━━━━━━━━━━━━━━━━━
+- Resident Name : ${d.name}
+- Room Number   : ${d.room}
+- Room Type     : ${d.type}
+- Lease Period  : ${fmt(d.start)} – ${fmt(d.end)}
+${d.rent ? `- Monthly Rent  : ₩${d.rent}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 2] Document Submission
+━━━━━━━━━━━━━━━━━━━━━━
+Please submit the following documents via email or messaging.
+
+${docLine}
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 3] Contract Signing (Modusign)
+━━━━━━━━━━━━━━━━━━━━━━
+Your lease agreement will be sent via Modusign, our online contract platform.
+Please review the following carefully before signing:
+
+- Room number and type
+- Lease period (move-in and move-out dates)
+- Monthly rent and payment method
+- Deposit amount
+- Bank account details for all payments
+
+Note: The deposit will be refunded to a Korean bank account only. International transfers are not available.
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 4] Deposit & Rent Payment
+━━━━━━━━━━━━━━━━━━━━━━
+Total Deposit: ₩2,000,000 (paid in two installments)
+
+1st payment (at contract signing) : ₩1,000,000
+2nd payment (on move-in day)      : ₩1,000,000 + first month's rent & management fee
+
+Payment schedule and bank details will be provided after the contract is signed.
+
+Note: If you are moving in on a weekend or public holiday, please complete payment by the last business day beforehand.
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 5] Welcome Guide
+━━━━━━━━━━━━━━━━━━━━━━
+Before your final payment, we will send you a Welcome Guide by email.
+It covers shared facilities, house rules, lease renewal, and move-out procedures. Please read it carefully.
+
+━━━━━━━━━━━━━━━━━━━━━━
+[Step 6] Door Password & Move-In
+━━━━━━━━━━━━━━━━━━━━━━
+Once all payments are confirmed, your door password will be sent via the KakaoTalk channel.
+(If you are unable to use KakaoTalk, we will provide the password through an alternative method.)
+
+We recommend completing payment in advance if you have an early flight or a tight schedule.
+
+Best regards,
+Homes Anam Operations Team
+jklee@homes.global`;
+}
+
+function copyMail(){
+  navigator.clipboard.writeText(document.getElementById('mail-output').textContent)
+    .then(()=>showMsg('mail-msg','클립보드에 복사되었습니다.','ok'));
+}
+async function saveHistory(){
+  if(!currentMailData) return;
+  const row = {
+    id: Date.now().toString(),
+    name: currentMailData.name,
+    room: currentMailData.room,
+    type: currentMailData.type,
+    resident: currentMailData.resident,
+    start_date: currentMailData.start,
+    end_date: currentMailData.end,
+    rent: currentMailData.rent
+  };
+  try {
+    await sbInsert('mail_history', row);
+    _history.unshift({...row, saved_at: new Date().toISOString()});
+    refreshCache();
+    showMsg('mail-msg','발송 기록이 저장되었습니다.','ok');
+  } catch(e){ showMsg('mail-msg','저장 실패: '+e.message,'err'); }
+}
+function clearMail(){
+  ['mail-name','mail-room','mail-start','mail-end','mail-rent'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mail-prospect-select').value='';
+  document.getElementById('mail-prospect-info').textContent='';
+  document.getElementById('mail-output-section').style.display='none';
+  currentMailData=null;
+}
+
+// ======================== 발송 기록 ========================
+function renderHistory(){
+  const el = document.getElementById('history-list');
+  if(!_history.length){ el.innerHTML=`<div class="empty"><p>저장된 발송 기록이 없습니다</p></div>`; return; }
+  el.innerHTML = _history.map(h=>`
+    <div class="history-item" onclick="viewHistory('${h.id}')">
+      <div class="history-meta">
+        <span class="history-name">${esc(h.name)}</span>
+        <span class="badge badge-contract">${esc(h.room)}호 · ${esc(h.type)}</span>
+        <span class="history-date">${new Date(h.saved_at).toLocaleString('ko-KR')}</span>
+        <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="event.stopPropagation();deleteHistory('${h.id}')">삭제</button>
+      </div>
+      <div style="font-size:12px;color:var(--gray)">${esc(h.start_date)} ~ ${esc(h.end_date)}</div>
+    </div>
+  `).join('');
+}
+function viewHistory(id){
+  const h = _history.find(x=>x.id===id);
+  if(!h) return;
+  currentMailData = { name:h.name, room:h.room, type:h.type, resident:h.resident, start:h.start_date, end:h.end_date, rent:h.rent };
+  showPage('mail');
+  setTimeout(()=>{
+    document.getElementById('mail-name').value=h.name;
+    document.getElementById('mail-room').value=h.room;
+    document.getElementById('mail-type').value=h.type;
+    document.getElementById('mail-resident').value=h.resident||'foreign';
+    document.getElementById('mail-start').value=h.start_date;
+    document.getElementById('mail-end').value=h.end_date;
+    document.getElementById('mail-rent').value=h.rent||'';
+    generateMail();
+  },100);
+}
+async function deleteHistory(id){
+  if(!confirm('삭제하시겠습니까?')) return;
+  try {
+    await sbDelete('mail_history', id);
+    _history = _history.filter(x=>x.id!==id);
+    refreshCache();
+    renderHistory();
+  } catch(e){ alert('삭제 실패: '+e.message); }
+}
+
+// ======================== 템플릿 ========================
+let tplLang = 'ko';
+let _templates = [];
+
+async function loadTemplates(){
+  try{
+    const res = await fetch(`${SB_URL}/rest/v1/templates?order=sort_order.asc,created_at.asc`, { headers: HEADERS });
+    if(!res.ok) throw new Error(await res.text());
+    _templates = await res.json();
+  }catch(e){ console.error('템플릿 로드 실패:', e); }
+}
+
+function switchTplLang(lang){
+  tplLang = lang;
+  document.getElementById('tpl-ko').classList.toggle('active', lang==='ko');
+  document.getElementById('tpl-en').classList.toggle('active', lang==='en');
+  renderTpl();
+}
+
+function renderTpl(){
+  const list = document.getElementById('tpl-list');
+  if(!_templates.length){
+    list.innerHTML=`<div class="empty"><p>등록된 템플릿이 없습니다. 추가 버튼을 눌러 템플릿을 만들어보세요.</p></div>`;
+    return;
+  }
+  list.innerHTML = _templates.map(t=>`
+    <div class="tpl-card">
+      <div class="tpl-title">
+        ${esc(tplLang==='ko' ? t.title_ko : t.title_en)}
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="copyTpl('${t.id}')">복사</button>
+          <button class="btn btn-secondary btn-sm" onclick="openTplModal('${t.id}')">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTpl('${t.id}')">삭제</button>
+        </div>
+      </div>
+      <div class="tpl-body">${esc(tplLang==='ko' ? t.body_ko : t.body_en)}</div>
+    </div>
+  `).join('');
+}
+
+function copyTpl(id){
+  const t = _templates.find(x=>x.id===id);
+  if(!t) return;
+  const body = tplLang==='ko' ? t.body_ko : t.body_en;
+  navigator.clipboard.writeText(body||'').then(()=>{
+    // 복사 완료 피드백 — 버튼 텍스트 일시 변경
+    const btns = document.querySelectorAll('.tpl-card .btn-secondary');
+    // showMsg가 없는 페이지라 간단히 alert 대신 토스트 스타일로
+    const toast = document.createElement('div');
+    toast.textContent = '복사되었습니다.';
+    toast.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;pointer-events:none';
+    document.body.appendChild(toast);
+    setTimeout(()=>toast.remove(), 1800);
+  });
+}
+
+function openTplModal(id){
+  const isEdit = !!id;
+  document.getElementById('tpl-modal-title').textContent = isEdit ? '템플릿 수정' : '템플릿 추가';
+  document.getElementById('tpl-edit-id').value = id||'';
+  if(isEdit){
+    const t = _templates.find(x=>x.id===id);
+    if(!t) return;
+    document.getElementById('tpl-title-ko').value = t.title_ko||'';
+    document.getElementById('tpl-title-en').value = t.title_en||'';
+    document.getElementById('tpl-body-ko').value  = t.body_ko||'';
+    document.getElementById('tpl-body-en').value  = t.body_en||'';
+  } else {
+    ['tpl-title-ko','tpl-title-en','tpl-body-ko','tpl-body-en'].forEach(i=>document.getElementById(i).value='');
+  }
+  document.getElementById('tpl-modal-overlay').classList.add('open');
+}
+
+function closeTplModal(e){
+  if(e && e.target !== document.getElementById('tpl-modal-overlay')) return;
+  document.getElementById('tpl-modal-overlay').classList.remove('open');
+}
+
+async function saveTpl(){
+  const id      = document.getElementById('tpl-edit-id').value;
+  const titleKo = document.getElementById('tpl-title-ko').value.trim();
+  const titleEn = document.getElementById('tpl-title-en').value.trim();
+  const bodyKo  = document.getElementById('tpl-body-ko').value.trim();
+  const bodyEn  = document.getElementById('tpl-body-en').value.trim();
+  if(!titleKo && !titleEn){ alert('제목을 입력해주세요.'); return; }
+  try{
+    if(id){
+      // 수정
+      await sbUpdate('templates', id, { title_ko:titleKo, title_en:titleEn, body_ko:bodyKo, body_en:bodyEn });
+      const i = _templates.findIndex(x=>x.id===id);
+      if(i!==-1) _templates[i] = { ..._templates[i], title_ko:titleKo, title_en:titleEn, body_ko:bodyKo, body_en:bodyEn };
+    } else {
+      // 추가
+      const row = { id:Date.now().toString(), title_ko:titleKo, title_en:titleEn, body_ko:bodyKo, body_en:bodyEn, sort_order:_templates.length };
+      await sbInsert('templates', row);
+      _templates.push(row);
+    }
+    document.getElementById('tpl-modal-overlay').classList.remove('open');
+    renderTpl();
+  }catch(e){ alert('저장 실패: '+e.message); }
+}
+
+async function deleteTpl(id){
+  if(!confirm('템플릿을 삭제하시겠습니까?')) return;
+  try{
+    await sbDelete('templates', id);
+    _templates = _templates.filter(x=>x.id!==id);
+    renderTpl();
+  }catch(e){ alert('삭제 실패: '+e.message); }
+}
+
+// ======================== 백업 ========================
+function exportData(){
+  const blob = new Blob([JSON.stringify({prospects:_prospects, history:_history, exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `holmes-anam-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+async function importData(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      const existP = new Set(_prospects.map(x=>x.id));
+      const existH = new Set(_history.map(x=>x.id));
+      let ap=0,sp=0,ah=0,sh=0;
+      for(const p of (data.prospects||[])){
+        if(existP.has(p.id)){ sp++; continue; }
+        try { await sbInsert('prospects', p); _prospects.push(p); ap++; } catch{}
+      }
+      for(const h of (data.history||[])){
+        if(existH.has(h.id)){ sh++; continue; }
+        const row = { id:h.id, name:h.name, room:h.room, type:h.type, resident:h.resident,
+          start_date:h.start||h.start_date, end_date:h.end||h.end_date, rent:h.rent };
+        try { await sbInsert('mail_history', row); _history.unshift({...row, saved_at:new Date().toISOString()}); ah++; } catch{}
+      }
+      showMsg('import-msg',`완료 — 문의자 +${ap}(스킵 ${sp}), 기록 +${ah}(스킵 ${sh})`,'ok');
+    }catch{ showMsg('import-msg','파일을 읽을 수 없습니다.','err'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+async function clearAllData(){
+  if(!confirm('전체 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+  try {
+    await fetch(`${SB_URL}/rest/v1/prospects?id=neq.none`, { method:'DELETE', headers:{...HEADERS,'Prefer':''} });
+    await fetch(`${SB_URL}/rest/v1/mail_history?id=neq.none`, { method:'DELETE', headers:{...HEADERS,'Prefer':''} });
+    _prospects=[]; _history=[];
+    alert('삭제되었습니다.');
+    renderSearch();
+  } catch(e){ alert('삭제 실패: '+e.message); }
+}
+
+// ======================== UTILS ========================
+function statusBadge(s){
+  const map={상담중:'consult',투어:'tour',리마인드:'remind','계약 준비':'contract'};
+  return `<span class="badge badge-${map[s]||'consult'}">${s||'-'}</span>`;
+}
+function priorityBadge(p){
+  const map={상:'high',중:'mid',하:'low'};
+  const label={상:'상',중:'중',하:'하'};
+  return `<span class="badge badge-${map[p]||'mid'}">${label[p]||p||'-'}</span>`;
+}
+function showMsg(id,msg,type){
+  const el=document.getElementById(id); if(!el) return;
+  el.textContent=msg; el.className=`result-msg ${type}`; el.style.display='block';
+  setTimeout(()=>el.style.display='none',3500);
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+// ======================== INIT ========================
+(async ()=>{
+  await Promise.all([loadAllData(), loadTemplates()]);
+  renderSearch();
+  renderTpl();
+  populateProspectSelect();
+})();
+</script>
+</body>
+</html>

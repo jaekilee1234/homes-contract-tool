@@ -627,16 +627,25 @@ td .btn-group{margin-top:0}
     <div class="page-title">계산 기록</div>
     <div class="page-sub">저장된 임대료 계산 결과입니다. 클릭하면 입금표를 확인하고 PDF로 저장할 수 있습니다.</div>
   </div>
-  <div class="search-bar" style="margin-bottom:20px">
-    <div class="field">
-      <label>이름 검색</label>
-      <input type="text" id="calc-search-name" placeholder="이름 입력..." oninput="renderCalcHistory()">
+  <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px">
+    <div class="search-bar" style="margin-bottom:0;flex:1">
+      <div class="field">
+        <label>이름 검색</label>
+        <input type="text" id="calc-search-name" placeholder="이름 입력..." oninput="renderCalcHistory()">
+      </div>
+      <div class="field">
+        <label>호실 검색</label>
+        <input type="text" id="calc-search-room" placeholder="호실 입력..." oninput="renderCalcHistory()">
+      </div>
+      <span class="search-count" id="calc-history-count"></span>
     </div>
-    <div class="field">
-      <label>호실 검색</label>
-      <input type="text" id="calc-search-room" placeholder="호실 입력..." oninput="renderCalcHistory()">
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <label style="font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px">미리보기 언어</label>
+      <div class="lang-toggle" style="margin-bottom:0">
+        <button class="lang-btn active" id="hist-lang-ko" onclick="setHistLang('ko')">한국어</button>
+        <button class="lang-btn" id="hist-lang-en" onclick="setHistLang('en')">English</button>
+      </div>
     </div>
-    <span class="search-count" id="calc-history-count"></span>
   </div>
   <div id="calc-history-list"></div>
 </div>
@@ -1823,9 +1832,7 @@ function resetCalc(){
   _calcResults=[]; _calcData=null;
 }
 
-let _calcHistoriesLoaded = false;
 async function loadCalcHistories(){
-  if(_calcHistoriesLoaded) return;
   try{
     const res=await sbFetch(`${SB_URL}/rest/v1/rent_calculations?order=created_at.desc`,{headers:HEADERS});
     if(!res.ok){ console.warn('rent_calculations 로드 실패:', res.status); return; }
@@ -1835,8 +1842,27 @@ async function loadCalcHistories(){
       inputs: typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs),
       rows: typeof h.rows==='string'?h.rows:JSON.stringify(h.rows)
     }));
-    _calcHistoriesLoaded = true;
   }catch(e){ console.warn('계산기록 로드 오류(무시):', e); _calcHistories=[]; }
+}
+
+let _histLang = 'ko';
+
+function setHistLang(lang){
+  _histLang = lang;
+  document.getElementById('hist-lang-ko').classList.toggle('active', lang==='ko');
+  document.getElementById('hist-lang-en').classList.toggle('active', lang==='en');
+  // 이미 열려있는 미리보기 모두 재렌더링
+  _calcHistories.forEach(h=>{
+    const preview = document.getElementById('preview-'+h.id);
+    const body = document.getElementById('body-'+h.id);
+    if(preview && body && body.style.display !== 'none'){
+      try{
+        const data=JSON.parse(typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs));
+        const rows=(typeof h.rows==='string'?JSON.parse(h.rows):h.rows).map(r=>({...r,billingStart:new Date(r.billingStart),start:new Date(r.start),end:new Date(r.end)}));
+        preview.innerHTML=buildInvoiceHTML(lang,data,rows,false);
+      }catch(e){}
+    }
+  });
 }
 
 function renderCalcHistory(){
@@ -1878,18 +1904,15 @@ function toggleCalcItem(id){
   const isOpen=body.style.display!=='none';
   body.style.display=isOpen?'none':'block';
   arrow.textContent=isOpen?'▶':'▼';
-  // 처음 열 때만 렌더링
   if(!isOpen){
     const preview=document.getElementById('preview-'+id);
-    if(!preview.innerHTML){
-      const h=_calcHistories.find(x=>x.id===id);
-      if(!h)return;
-      try{
-        const data=JSON.parse(typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs));
-        const rows=(typeof h.rows==='string'?JSON.parse(h.rows):h.rows).map(r=>({...r,billingStart:new Date(r.billingStart),start:new Date(r.start),end:new Date(r.end)}));
-        preview.innerHTML=buildInvoiceHTML('ko',data,rows,false);
-      }catch(e){preview.innerHTML='<p style="color:var(--gray);font-size:12px">미리보기를 불러올 수 없습니다.</p>';}
-    }
+    const h=_calcHistories.find(x=>x.id===id);
+    if(!h)return;
+    try{
+      const data=JSON.parse(typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs));
+      const rows=(typeof h.rows==='string'?JSON.parse(h.rows):h.rows).map(r=>({...r,billingStart:new Date(r.billingStart),start:new Date(r.start),end:new Date(r.end)}));
+      preview.innerHTML=buildInvoiceHTML(_histLang,data,rows,false);
+    }catch(e){preview.innerHTML='<p style="color:var(--gray);font-size:12px">미리보기를 불러올 수 없습니다.</p>';}
   }
 }
 
@@ -1964,111 +1987,6 @@ function showToast(msg){
   t.textContent=msg;
   t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;pointer-events:none';
   document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
-}
-
-function toNum(v){ const n=Number(String(v).replace(/[^\d.-]/g,'')); return isNaN(n)?0:n; }
-function fmtMoney(n){ return Math.round(n).toLocaleString('ko-KR'); }
-function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function fmtMonth(d,lang){ return lang==='ko' ? d.getFullYear()+'년 '+(d.getMonth()+1)+'월' : d.toLocaleDateString('en-US',{year:'numeric',month:'long'}); }
-
-function prorateFloor10(base,used,total,partial){ if(!partial)return base; return Math.floor(base*used/total/10)*10; }
-function prorateFloor1(base,used,total,partial){ if(!partial)return base; return Math.round(base*used/total); }
-function allocateGroup(items,used,total,partial){
-  const bases=items.map(toNum);
-  if(!partial)return bases;
-  const groupTotal=bases.reduce((s,v)=>s+v,0);
-  if(!groupTotal)return bases.map(()=>0);
-  const target=Math.round(groupTotal*used/total);
-  const raws=bases.map((b,i)=>({i,raw:b*used/total,floored:Math.floor(b*used/total),rem:(b*used/total)-Math.floor(b*used/total)}));
-  const alloc=raws.map(r=>r.floored);
-  let rem=target-alloc.reduce((s,v)=>s+v,0);
-  raws.sort((a,b)=>b.rem-a.rem||b.raw-a.raw);
-  let k=0; while(rem>0){alloc[raws[k%raws.length].i]++;rem--;k++;}
-  return alloc;
-}
-
-function runCalc(){
-  const site=document.getElementById('calc-site').value;
-  const room=document.getElementById('calc-room').value.trim();
-  const name=document.getElementById('calc-name').value.trim();
-  const startVal=document.getElementById('calc-start').value;
-  const endVal=document.getElementById('calc-end').value;
-  const calcType=document.getElementById('calc-type').value;
-  if(!startVal||!endVal){alert('계약 시작일과 종료일을 입력해주세요.');return;}
-
-  const startDate=new Date(startVal); startDate.setHours(0,0,0,0);
-  const endDate=new Date(endVal); endDate.setHours(0,0,0,0);
-  if(startDate>endDate){alert('시작일이 종료일보다 늦습니다.');return;}
-
-  const contractDeposit=toNum(document.getElementById('calc-contract-deposit').value);
-  const deposit=toNum(document.getElementById('calc-deposit').value);
-  const rent=toNum(document.getElementById('calc-rent').value);
-  const mgmt=toNum(document.getElementById('calc-mgmt').value);
-  const utility=toNum(document.getElementById('calc-utility').value);
-  const utilityVat=toNum(document.getElementById('calc-utility-vat').value);
-  const water=toNum(document.getElementById('calc-water').value);
-  const parking=toNum(document.getElementById('calc-parking').value);
-  const storage=toNum(document.getElementById('calc-storage').value);
-  const storageVat=toNum(document.getElementById('calc-storage-vat').value);
-  const cleanFee=toNum(document.getElementById('calc-clean').value);
-  const cleanType=document.getElementById('calc-clean-type').value;
-
-  const inputs={site,room,name,startVal,endVal,calcType,contractDeposit,deposit,rent,mgmt,utility,utilityVat,water,parking,storage,storageVat,cleanFee,cleanType};
-  let rows=[];
-
-  if(calcType==='엔코스테이'){
-    let cur=new Date(startDate); let num=1;
-    while(cur<endDate){
-      const nextCur=new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+30);
-      const isFull=nextCur<=endDate;
-      const periodEnd=isFull?nextCur:endDate;
-      const used=Math.floor((periodEnd-cur)/86400000);
-      if(used<=0)break;
-      const endInc=new Date(periodEnd.getFullYear(),periodEnd.getMonth(),periodEnd.getDate()-1);
-      const calc=b=>{ if(b<=0)return 0; if(isFull)return b; return Math.ceil((b/30)-1e-9)*used; };
-      const isFirst=num===1, isLast=periodEnd.getTime()===endDate.getTime();
-      const clean=cleanFee>0?((cleanType==='선불'&&isFirst)||(cleanType==='후불'&&isLast)?cleanFee:0):0;
-      const total=calc(rent)+calc(mgmt)+calc(utility)+calc(utilityVat)+calc(water)+calc(parking)+calc(storage)+calc(storageVat)+clean;
-      rows.push({num,billingStart:new Date(cur),start:new Date(cur),end:endInc,used,depositAmt:0,rent:calc(rent),mgmt:calc(mgmt),utility:calc(utility),utilityVat:calc(utilityVat),water:calc(water),parking:calc(parking),storage:calc(storage),storageVat:calc(storageVat),clean,total});
-      num++; cur=periodEnd;
-    }
-  } else {
-    let cur=new Date(startDate.getFullYear(),startDate.getMonth(),1); let num=1;
-    while(cur<=endDate){
-      const y=cur.getFullYear(),m=cur.getMonth();
-      const monthFirst=new Date(y,m,1),monthLast=new Date(y,m+1,0);
-      const isFirst=(y===startDate.getFullYear()&&m===startDate.getMonth());
-      const isLast=(y===endDate.getFullYear()&&m===endDate.getMonth());
-      const aStart=isFirst?startDate:monthFirst;
-      const aEnd=isLast?endDate:monthLast;
-      const total=monthLast.getDate();
-      const used=Math.floor((aEnd-aStart)/86400000)+1;
-      const partial=isFirst||isLast;
-      const depAmt=isFirst?deposit:0;
-      let rA,mA,uA,uvA,wA,pA,sA,svA;
-      if(calcType==='빌딩케어'){
-        rA=prorateFloor1(rent,used,total,partial);
-        const g=allocateGroup([mgmt,utility,utilityVat,water],used,total,partial);
-        mA=g[0];uA=g[1];uvA=g[2];wA=g[3];
-        pA=prorateFloor1(parking,used,total,partial);
-        sA=prorateFloor1(storage,used,total,partial);
-        svA=prorateFloor1(storageVat,used,total,partial);
-      } else {
-        rA=prorateFloor10(rent,used,total,partial);
-        mA=prorateFloor10(mgmt,used,total,partial);
-        uA=prorateFloor10(utility,used,total,partial);
-        uvA=prorateFloor10(utilityVat,used,total,partial);
-        wA=prorateFloor10(water,used,total,partial);
-        pA=prorateFloor10(parking,used,total,partial);
-        sA=prorateFloor10(storage,used,total,partial);
-        svA=prorateFloor10(storageVat,used,total,partial);
-      }
-      const clean=cleanFee>0?((cleanType==='선불'&&isFirst)||(cleanType==='후불'&&isLast)?cleanFee:0):0;
-      const rowTotal=depAmt+rA+mA+uA+uvA+wA+pA+sA+svA+clean;
-      rows.push({num,billingStart:monthFirst,start:aStart,end:aEnd,used,depositAmt:depAmt,rent:rA,mgmt:mA,utility:uA,utilityVat:uvA,water:wA,parking:pA,storage:sA,storageVat:svA,clean,total:rowTotal});
-      num++; cur=new Date(y,m+1,1);
-    }
-  }
 }
 
 function statusBadge(s){

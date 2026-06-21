@@ -842,18 +842,14 @@ async function sbDelete(table, id){
 
 // 초기 데이터 로드 (sessionStorage 캐시로 속도 개선)
 async function loadAllData(){
-  // 세션 캐시 확인 — 같은 탭에서 재방문 시 즉시 표시
   const cached = sessionStorage.getItem('hc_cache');
   if(cached){
     try{
       const {prospects, history} = JSON.parse(cached);
       _prospects = prospects || [];
       _history   = history   || [];
-      showLoading(false);
-      renderSearch(); populateProspectSelect(); renderTpl();
     }catch{}
   }
-  // 백그라운드에서 최신 데이터 갱신
   try {
     [_prospects, _history] = await Promise.all([
       sbGet('prospects'),
@@ -861,12 +857,8 @@ async function loadAllData(){
     ]);
     sessionStorage.setItem('hc_cache', JSON.stringify({prospects:_prospects, history:_history}));
   } catch(e){
-    if(!cached){
-      alert('Supabase 연결 오류가 발생했습니다.\n' + e.message);
-    }
+    if(!cached) console.error('데이터 로드 실패:', e);
   }
-  showLoading(false);
-  renderSearch(); populateProspectSelect();
 }
 
 function refreshCache(){
@@ -2067,10 +2059,19 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 
 // ======================== INIT ========================
 (async ()=>{
-  await Promise.all([loadAllData(), loadTemplates(), loadCalcHistories()]);
-  renderSearch();
-  renderTpl();
-  populateProspectSelect();
+  try{
+    await Promise.all([
+      loadAllData(),
+      loadTemplates(),
+      loadCalcHistories()
+    ]);
+  }catch(e){ console.error('초기화 오류:', e); }
+  finally{
+    showLoading(false);
+    renderSearch();
+    renderTpl();
+    populateProspectSelect();
+  }
 })();
 </script>
 </body>

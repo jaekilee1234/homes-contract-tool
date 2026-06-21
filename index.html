@@ -723,11 +723,24 @@ document.addEventListener('click', e=>{
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
+  // 브라우저 히스토리에 추가 — 뒤로가기 지원
+  history.pushState({page: id}, '', '#'+id);
   if(id==='search') renderSearch();
   if(id==='history') renderHistory();
   if(id==='tpl') renderTpl();
   if(id==='mail'){ populateProspectSelect(); updateContractPipeline(); }
 }
+
+// 브라우저 뒤로가기 처리
+window.addEventListener('popstate', e=>{
+  const id = e.state?.page || 'reg';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(id==='search') renderSearch();
+  if(id==='history') renderHistory();
+  if(id==='tpl') renderTpl();
+  if(id==='mail'){ populateProspectSelect(); updateContractPipeline(); }
+});
 
 // ======================== 계약 준비 파이프라인 ========================
 function updateContractPipeline(){

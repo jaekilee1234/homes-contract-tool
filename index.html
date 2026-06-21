@@ -1800,14 +1800,14 @@ function resetCalc(){
 async function loadCalcHistories(){
   try{
     const res=await fetch(`${SB_URL}/rest/v1/rent_calculations?order=created_at.desc`,{headers:HEADERS});
-    if(!res.ok) throw new Error(await res.text());
+    if(!res.ok){ console.warn('rent_calculations 로드 실패:', res.status); return; }
     const data=await res.json();
     _calcHistories=data.map(h=>({
       ...h,
       inputs: typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs),
       rows: typeof h.rows==='string'?h.rows:JSON.stringify(h.rows)
     }));
-  }catch(e){ console.error('계산기록 로드 실패:',e); _calcHistories=[]; }
+  }catch(e){ console.warn('계산기록 로드 오류(무시):', e); _calcHistories=[]; }
 }
 
 function renderCalcHistory(){
@@ -2058,6 +2058,9 @@ function showMsg(id,msg,type){
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
 
 // ======================== INIT ========================
+// 안전장치 — 5초 후 강제로 로딩 해제
+setTimeout(()=>showLoading(false), 5000);
+
 (async ()=>{
   try{
     await Promise.all([

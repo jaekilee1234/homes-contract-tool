@@ -813,35 +813,50 @@ const HEADERS = {
 let _prospects = [];
 let _history = [];
 
+async function sbFetch(url, options={}, timeoutMs=8000){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  try{
+    const res = await fetch(url, {...options, signal: controller.signal});
+    clearTimeout(timer);
+    return res;
+  }catch(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError') throw new Error('요청 시간 초과 (Supabase 응답 없음)');
+    throw e;
+  }
+}
+
 async function sbGet(table){
   const order = table === 'mail_history' ? 'saved_at.desc' : 'seq.asc';
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?order=${order}`, { headers: HEADERS });
+  const res = await sbFetch(`${SB_URL}/rest/v1/${table}?order=${order}`, { headers: HEADERS });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function sbInsert(table, row){
-  const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
+  const res = await sbFetch(`${SB_URL}/rest/v1/${table}`, {
     method: 'POST', headers: HEADERS, body: JSON.stringify(row)
   });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function sbUpdate(table, id, row){
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+  const res = await sbFetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
     method: 'PATCH', headers: HEADERS, body: JSON.stringify(row)
   });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function sbDelete(table, id){
-  const res = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+  const res = await sbFetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
     method: 'DELETE', headers: { ...HEADERS, 'Prefer': '' }
   });
   if(!res.ok) throw new Error(await res.text());
 }
 
-// 초기 데이터 로드 (sessionStorage 캐시로 속도 개선)
+// 초기 데이터 로드 — prospects만 먼저, 나머지는 지연 로딩
 async function loadAllData(){
+  // 캐시 있으면 즉시 표시
   const cached = sessionStorage.getItem('hc_cache');
   if(cached){
     try{
@@ -850,16 +865,26 @@ async function loadAllData(){
       _history   = history   || [];
     }catch{}
   }
-  try {
-    [_prospects, _history] = await Promise.all([
-      sbGet('prospects'),
-      sbGet('mail_history')
-    ]);
+  // prospects만 먼저 로드 (가장 자주 쓰는 데이터)
+  try{
+    _prospects = await sbGet('prospects');
     sessionStorage.setItem('hc_cache', JSON.stringify({prospects:_prospects, history:_history}));
-  } catch(e){
-    if(!cached) console.error('데이터 로드 실패:', e);
-  }
+  }catch(e){ console.warn('prospects 로드 실패:', e); }
 }
+
+// mail_history — 발송기록 페이지 열 때만 로드
+let _historyLoaded = false;
+async function ensureHistoryLoaded(){
+  if(_historyLoaded) return;
+  try{
+    _history = await sbGet('mail_history');
+    _historyLoaded = true;
+    sessionStorage.setItem('hc_cache', JSON.stringify({prospects:_prospects, history:_history}));
+  }catch(e){ console.warn('mail_history 로드 실패:', e); }
+}
+
+// templates — 템플릿 페이지 열 때만 로드
+let _templatesLoaded = false;
 
 function refreshCache(){
   sessionStorage.setItem('hc_cache', JSON.stringify({prospects:_prospects, history:_history}));
@@ -900,13 +925,12 @@ document.addEventListener('click', e=>{
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  // 브라우저 히스토리에 추가 — 뒤로가기 지원
   history.pushState({page: id}, '', '#'+id);
   if(id==='search') renderSearch();
-  if(id==='history') renderHistory();
-  if(id==='tpl') renderTpl();
+  if(id==='history') ensureHistoryLoaded().then(renderHistory);
+  if(id==='tpl') loadTemplates().then(renderTpl);
   if(id==='mail'){ populateProspectSelect(); updateContractPipeline(); }
-  if(id==='calc-history'){ loadCalcHistories().then(renderCalcHistory); }
+  if(id==='calc-history') loadCalcHistories().then(renderCalcHistory);
 }
 
 // 브라우저 뒤로가기 처리
@@ -1347,11 +1371,13 @@ let tplLang = 'ko';
 let _templates = [];
 
 async function loadTemplates(){
+  if(_templatesLoaded) return;
   try{
-    const res = await fetch(`${SB_URL}/rest/v1/templates?order=sort_order.asc,created_at.asc`, { headers: HEADERS });
+    const res = await sbFetch(`${SB_URL}/rest/v1/templates?order=sort_order.asc,created_at.asc`, { headers: HEADERS });
     if(!res.ok) throw new Error(await res.text());
     _templates = await res.json();
-  }catch(e){ console.error('템플릿 로드 실패:', e); }
+    _templatesLoaded = true;
+  }catch(e){ console.warn('템플릿 로드 실패:', e); }
 }
 
 function switchTplLang(lang){
@@ -1797,9 +1823,11 @@ function resetCalc(){
   _calcResults=[]; _calcData=null;
 }
 
+let _calcHistoriesLoaded = false;
 async function loadCalcHistories(){
+  if(_calcHistoriesLoaded) return;
   try{
-    const res=await fetch(`${SB_URL}/rest/v1/rent_calculations?order=created_at.desc`,{headers:HEADERS});
+    const res=await sbFetch(`${SB_URL}/rest/v1/rent_calculations?order=created_at.desc`,{headers:HEADERS});
     if(!res.ok){ console.warn('rent_calculations 로드 실패:', res.status); return; }
     const data=await res.json();
     _calcHistories=data.map(h=>({
@@ -1807,6 +1835,7 @@ async function loadCalcHistories(){
       inputs: typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs),
       rows: typeof h.rows==='string'?h.rows:JSON.stringify(h.rows)
     }));
+    _calcHistoriesLoaded = true;
   }catch(e){ console.warn('계산기록 로드 오류(무시):', e); _calcHistories=[]; }
 }
 
@@ -2058,21 +2087,21 @@ function showMsg(id,msg,type){
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
 
 // ======================== INIT ========================
-// 안전장치 — 5초 후 강제로 로딩 해제
-setTimeout(()=>showLoading(false), 5000);
+// 안전장치 — 10초 후 강제 로딩 해제
+const _loadingTimer = setTimeout(()=>{
+  showLoading(false);
+  console.warn('로딩 타임아웃 — 강제 해제');
+}, 10000);
 
 (async ()=>{
   try{
-    await Promise.all([
-      loadAllData(),
-      loadTemplates(),
-      loadCalcHistories()
-    ]);
+    // 시작 시 prospects만 로드 — 나머지는 페이지 이동 시 지연 로딩
+    await loadAllData();
   }catch(e){ console.error('초기화 오류:', e); }
   finally{
+    clearTimeout(_loadingTimer);
     showLoading(false);
     renderSearch();
-    renderTpl();
     populateProspectSelect();
   }
 })();

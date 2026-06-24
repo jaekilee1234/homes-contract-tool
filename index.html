@@ -134,9 +134,17 @@ td .btn-group{margin-top:0}
 .history-date{font-size:11px;color:var(--gray)}
 
 /* TEMPLATE */
-.tpl-card{border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:10px}
-.tpl-title{font-weight:700;font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-.tpl-body{font-size:12px;color:var(--gray);line-height:1.75;white-space:pre-wrap}
+.tpl-card{border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:10px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.tpl-card.open{border-color:#d6c8a8;box-shadow:0 3px 12px rgba(0,0,0,.04)}
+.tpl-title{font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tpl-head{flex:1;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;user-select:none;min-width:0}
+.tpl-head:hover{color:#000}
+.tpl-head-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tpl-chevron{font-size:11px;color:var(--gray);transition:transform .2s;flex-shrink:0}
+.tpl-card.open .tpl-chevron{transform:rotate(180deg)}
+.tpl-actions{display:flex;gap:6px;flex-shrink:0}
+.tpl-body{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--gray);line-height:1.75;white-space:pre-wrap}
+.tpl-card.open .tpl-body{display:block}
 
 /* BACKUP */
 .info-box{background:var(--soft);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.7;margin-bottom:14px}
@@ -1405,19 +1413,31 @@ function renderTpl(){
     list.innerHTML=`<div class="empty"><p>등록된 템플릿이 없습니다. 추가 버튼을 눌러 템플릿을 만들어보세요.</p></div>`;
     return;
   }
-  list.innerHTML = _templates.map(t=>`
-    <div class="tpl-card">
-      <div class="tpl-title">
-        ${esc(tplLang==='ko' ? t.title_ko : t.title_en)}
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-secondary btn-sm" onclick="copyTpl('${t.id}')">복사</button>
-          <button class="btn btn-secondary btn-sm" onclick="openTplModal('${t.id}')">수정</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteTpl('${t.id}')">삭제</button>
+  list.innerHTML = _templates.map(t=>{
+    const title = tplLang==='ko' ? t.title_ko : t.title_en;
+    const body  = tplLang==='ko' ? t.body_ko  : t.body_en;
+    return `
+      <div class="tpl-card" id="tpl-${t.id}">
+        <div class="tpl-title">
+          <div class="tpl-head" onclick="toggleTpl('${t.id}')">
+            <span class="tpl-head-text">${esc(title || '(제목 없음)')}</span>
+            <span class="tpl-chevron">▼</span>
+          </div>
+          <div class="tpl-actions">
+            <button class="btn btn-secondary btn-sm" onclick="copyTpl('${t.id}')">복사</button>
+            <button class="btn btn-secondary btn-sm" onclick="openTplModal('${t.id}')">수정</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTpl('${t.id}')">삭제</button>
+          </div>
         </div>
+        <div class="tpl-body">${esc(body || '')}</div>
       </div>
-      <div class="tpl-body">${esc(tplLang==='ko' ? t.body_ko : t.body_en)}</div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+}
+
+function toggleTpl(id){
+  const card = document.getElementById('tpl-' + id);
+  if(card) card.classList.toggle('open');
 }
 
 function copyTpl(id){

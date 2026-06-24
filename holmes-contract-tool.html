@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOMES 안암 — 계약 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #FFCF0D;
+  --navy: #020425;
+  --cream: #F4F2EC;
+  --line: #E7DDC6;
+  --soft: #f6f7f9;
+  --gray: #6F7A83;
+  --font: 'Outfit','Pretendard',-apple-system,sans-serif;
+  --red: #e53e3e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--navy);background:var(--soft);min-height:100vh}
+nav{background:#fff;border-bottom:1px solid var(--line);height:60px;display:flex;align-items:center;padding:0 28px;position:sticky;top:0;z-index:100}
+.wordmark{font-size:17px;font-weight:800;color:var(--navy);letter-spacing:-0.5px;margin-right:36px;white-space:nowrap;flex-shrink:0}
+.wordmark span{color:var(--gold)}
+.nav-items{display:flex;gap:2px}
+.nav-group{position:relative}
+.nav-btn{display:flex;align-items:center;gap:5px;padding:8px 14px;border-radius:8px;border:none;background:none;font:600 13px var(--font);color:var(--gray);cursor:pointer;transition:all .15s;white-space:nowrap}
+.nav-btn:hover{background:var(--soft);color:var(--navy)}
+.nav-btn.open{background:var(--soft);color:var(--navy)}
+.nav-btn .arrow{font-size:9px;transition:transform .2s}
+.nav-btn.open .arrow{transform:rotate(180deg)}
+.dropdown{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--line);border-radius:10px;min-width:150px;box-shadow:0 4px 16px rgba(0,0,0,.08);opacity:0;pointer-events:none;transition:opacity .15s;z-index:200}
+.dropdown.open{opacity:1;pointer-events:all}
+.dropdown-item{display:block;width:100%;padding:10px 16px;border:none;background:none;font:500 13px var(--font);color:var(--navy);cursor:pointer;text-align:left;transition:background .1s}
+.dropdown-item:hover{background:var(--soft)}
+.dropdown-item:first-child{border-radius:10px 10px 0 0}
+.dropdown-item:last-child{border-radius:0 0 10px 10px}
+.nav-standalone{padding:8px 14px;border-radius:8px;border:none;background:none;font:600 13px var(--font);color:var(--gray);cursor:pointer;transition:all .15s}
+.nav-standalone:hover{background:var(--soft);color:var(--navy)}
+.page{display:none;padding:32px 28px;max-width:1100px;margin:0 auto}
+.page.active{display:block}
+.page-header{margin-bottom:28px}
+.page-title{font-size:22px;font-weight:800;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--gray)}
+.section-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:24px 0 12px}
+.section-label:first-child{margin-top:0}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px}
+.card+.card{margin-top:14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.form-grid.col4{grid-template-columns:1fr 1fr 1fr 1fr}
+.form-full{grid-column:1/-1}
+label{display:block;font-size:11px;font-weight:700;color:var(--gray);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:400 14px var(--font);color:var(--navy);background:#fff;outline:none;transition:border .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--navy)}
+textarea{resize:vertical;min-height:80px}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236F7A83' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.field{display:flex;flex-direction:column}
+.divider{border:none;border-top:1px solid var(--line);margin:20px 0}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:9px;border:1px solid transparent;font:600 13px var(--font);cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.btn-primary:hover{background:#f0c200}
+.btn-secondary{background:#fff;color:var(--navy);border-color:var(--line)}
+.btn-secondary:hover{background:var(--soft)}
+.btn-danger{background:#fff;color:var(--red);border-color:#fca5a5}
+.btn-danger:hover{background:#fff5f5}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:7px}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-high{background:#fee2e2;color:#dc2626}
+.badge-mid{background:#fef3c7;color:#d97706}
+.badge-low{background:#dcfce7;color:#16a34a}
+.badge-consult{background:#ede9fe;color:#7c3aed}
+.badge-tour{background:#dbeafe;color:#2563eb}
+.badge-remind{background:#fef9c3;color:#ca8a04}
+.badge-contract{background:#fce7f3;color:#be185d}
+.badge-done{background:#d1fae5;color:#065f46}
+.pipeline-contract{background:linear-gradient(135deg,#fce7f3 0%,#fff0f8 100%);border:1.5px solid #f9a8d4;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pipeline-contract .pc-num{font-size:28px;font-weight:800;color:#be185d}
+.pipeline-contract .pc-text{font-size:13px;color:#9d174d;line-height:1.5}
+.pipeline-contract .pc-text strong{display:block;font-size:14px;color:#be185d}
+.pipeline-contract .pc-btn{margin-left:auto}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 14px;background:var(--soft);border-bottom:2px solid var(--line);text-align:left;font-weight:700;font-size:11px;color:var(--gray);white-space:nowrap;text-transform:uppercase;letter-spacing:.3px}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.seq{font-weight:700;color:#bbb;font-size:12px}
+.td-name{font-weight:600}
+.td-mono{font-size:12px;color:var(--gray);font-family:'Outfit',monospace}
+td .btn-group{margin-top:0}
+.row-contract td{background:#fff8fb}
+.row-contract:hover td{background:#fdf0f7}
+.lang-toggle{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;width:fit-content;margin-bottom:16px}
+.lang-btn{padding:8px 22px;border:none;background:#fff;font:600 13px var(--font);color:var(--gray);cursor:pointer;transition:all .15s}
+.lang-btn.active{background:var(--navy);color:#fff}
+.mail-output{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:20px;font-size:13px;line-height:1.85;white-space:pre-wrap;font-family:'Pretendard',sans-serif;max-height:520px;overflow-y:auto}
+.history-item{border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.history-item:hover{border-color:#aaa}
+.history-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.history-name{font-weight:700;font-size:14px}
+.history-date{font-size:11px;color:var(--gray)}
+.tpl-card{border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:10px}
+.tpl-title{font-weight:700;font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.tpl-body{font-size:12px;color:var(--gray);line-height:1.75;white-space:pre-wrap}
+.info-box{background:var(--soft);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.7;margin-bottom:14px}
+.info-box.warn{border-left-color:#e53e3e}
+.result-msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:10px;display:none}
+.result-msg.ok{background:#dcfce7;color:#15803d}
+.result-msg.err{background:#fee2e2;color:#dc2626}
+.empty{text-align:center;padding:52px 20px;color:var(--gray)}
+.empty p{font-size:13px;margin-top:8px}
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end}
+.search-bar .field{min-width:180px}
+.search-bar input,.search-bar select{max-width:220px}
+.search-count{font-size:13px;color:var(--gray);align-self:center;white-space:nowrap}
+.modal-overlay{position:fixed;inset:0;background:rgba(2,4,37,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.18);position:relative}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+.modal-title{font-size:17px;font-weight:800}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray);flex-shrink:0}
+.modal-close:hover{background:var(--soft)}
+.modal-body{padding:20px 24px 24px}
+.modal-footer{padding:0 24px 20px;display:flex;gap:8px;justify-content:flex-end}
+.calc-table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+.calc-table th{padding:8px 10px;background:var(--navy);color:#fff;text-align:center;font-weight:700;font-size:11px;white-space:nowrap}
+.calc-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.calc-table td:first-child,.calc-table td:nth-child(2),.calc-table td:nth-child(3),.calc-table td:nth-child(4),.calc-table td:nth-child(5){text-align:center}
+.calc-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--soft)}
+.calc-table tr:hover td{background:#f5f5f5}
+.calc-info-box{background:var(--soft);border-radius:10px;padding:16px 20px;margin-bottom:16px;font-size:13px;line-height:1.8}
+.calc-info-box strong{font-weight:700;color:var(--navy)}
+.calc-history-item{border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.calc-history-item:hover{border-color:#aaa}
+@media(max-width:700px){
+  .form-grid,.form-grid.col3,.form-grid.col4{grid-template-columns:1fr}
+  nav{padding:0 16px}
+  .page{padding:20px 16px}
+  .modal{max-width:100%;margin:0;border-radius:12px}
+}
+</style>
+</head>
+<body>
+
+<div id="global-loading" style="position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+  <div style="width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite"></div>
+  <div style="font-size:13px;color:var(--gray);font-weight:600">데이터 불러오는 중...</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<nav>
+  <div class="wordmark">HOMES<span>.</span></div>
+  <div class="nav-items">
+    <div class="nav-group" id="ng-inquiry">
+      <button class="nav-btn" onclick="toggleNav('inquiry')">문의 관리 <span class="arrow">▾</span></button>
+      <div class="dropdown" id="dd-inquiry">
+        <button class="dropdown-item" onclick="navTo('reg')">등록</button>
+        <button class="dropdown-item" onclick="navTo('search')">검색</button>
+      </div>
+    </div>
+    <div class="nav-group" id="ng-sales">
+      <button class="nav-btn" onclick="toggleNav('sales')">세일즈 업무 <span class="arrow">▾</span></button>
+      <div class="dropdown" id="dd-sales">
+        <button class="dropdown-item" onclick="navTo('mail')">메일 작성</button>
+        <button class="dropdown-item" onclick="navTo('history')">발송 기록</button>
+        <button class="dropdown-item" onclick="navTo('tpl')">템플릿</button>
+      </div>
+    </div>
+    <div class="nav-group" id="ng-calc">
+      <button class="nav-btn" onclick="toggleNav('calc')">임대료 계산기 <span class="arrow">▾</span></button>
+      <div class="dropdown" id="dd-calc">
+        <button class="dropdown-item" onclick="navTo('calc')">계산하기</button>
+        <button class="dropdown-item" onclick="navTo('calc-history')">계산 기록</button>
+      </div>
+    </div>
+    <button class="nav-standalone" onclick="navTo('backup')">백업 / 복원</button>
+  </div>
+</nav>
+
+<!-- 등록 -->
+<div id="page-reg" class="page active">
+  <div class="page-header"><div class="page-title">문의자 등록</div><div class="page-sub">신규 입주 문의자 정보를 등록합니다.</div></div>
+  <div class="card">
+    <div class="form-grid col3">
+      <div class="field"><label>이름 *</label><input id="reg-name" type="text" placeholder="홍길동 / Hong Gil-dong"></div>
+      <div class="field"><label>연락처</label><input id="reg-phone" type="text" placeholder="+82 10-0000-0000"></div>
+      <div class="field"><label>이메일</label><input id="reg-email" type="email" placeholder="example@email.com"></div>
+      <div class="field"><label>희망 입주일</label><input id="reg-movein" type="date"></div>
+      <div class="field"><label>선호 타입</label>
+        <select id="reg-type">
+          <option value="">-- 선택 --</option>
+          <option value="WORK">WORK (워크)</option>
+          <option value="SMART STORAGE">SMART STORAGE (수납강화)</option>
+          <option value="MULTI BUNKER">MULTI BUNKER (멀티벙커)</option>
+          <option value="FULL FURNISHED">FULL FURNISHED (풀퍼니시드)</option>
+        </select>
+      </div>
+      <div class="field"><label>입주자 구분</label>
+        <select id="reg-resident">
+          <option value="foreign">외국인 (Foreign national)</option>
+          <option value="korean">내국인 (Korean national)</option>
+          <option value="corporate">법인 (Corporate)</option>
+        </select>
+      </div>
+      <div class="field"><label>현재 상태</label>
+        <select id="reg-status">
+          <option value="상담중">상담중</option>
+          <option value="투어">투어</option>
+          <option value="리마인드">리마인드</option>
+          <option value="계약 준비">계약 준비</option>
+        </select>
+      </div>
+      <div class="field"><label>중요도</label>
+        <select id="reg-priority">
+          <option value="상">상</option>
+          <option value="중" selected>중</option>
+          <option value="하">하</option>
+        </select>
+      </div>
+      <div class="field form-full"><label>비고</label><textarea id="reg-memo" placeholder="특이사항, 요청사항 등 자유롭게 입력"></textarea></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="saveProspect()">등록 저장</button>
+      <button class="btn btn-secondary" onclick="clearReg()">초기화</button>
+    </div>
+    <div id="reg-msg" class="result-msg"></div>
+  </div>
+</div>
+
+<!-- 검색 -->
+<div id="page-search" class="page">
+  <div class="page-header"><div class="page-title">문의자 검색</div><div class="page-sub">등록된 문의자를 검색하고 관리합니다.</div></div>
+  <div id="contract-pipeline" class="pipeline-contract" style="margin-bottom:20px">
+    <div><div class="pc-num" id="contract-count">0</div></div>
+    <div class="pc-text"><strong>계약 준비 대상</strong>메일 작성이 필요한 문의자입니다.</div>
+    <button class="btn btn-primary btn-sm pc-btn" onclick="showPage('mail')">메일 작성으로 이동</button>
+  </div>
+  <div class="search-bar">
+    <div class="field"><label>이름 검색</label><input type="text" id="search-name" placeholder="이름 입력..." oninput="renderSearch()"></div>
+    <div class="field"><label>상태 필터</label>
+      <select id="search-status" onchange="renderSearch()">
+        <option value="">전체 상태</option>
+        <option value="상담중">상담중</option>
+        <option value="투어">투어</option>
+        <option value="리마인드">리마인드</option>
+        <option value="계약 준비">계약 준비</option>
+      </select>
+    </div>
+    <div class="field"><label>중요도 필터</label>
+      <select id="search-priority" onchange="renderSearch()">
+        <option value="">전체 중요도</option>
+        <option value="상">상</option>
+        <option value="중">중</option>
+        <option value="하">하</option>
+      </select>
+    </div>
+    <span class="search-count" id="search-count"></span>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>이름</th><th>연락처</th><th>선호 타입</th><th>희망 입주일</th><th>상태</th><th>중요도</th><th>비고</th><th>관리</th></tr></thead>
+        <tbody id="search-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 메일 작성 -->
+<div id="page-mail" class="page">
+  <div class="page-header"><div class="page-title">계약 안내 메일 작성</div><div class="page-sub">계약 준비 상태의 문의자를 선택하거나 직접 입력하여 계약 안내 메일을 생성합니다.</div></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="section-label" style="margin-top:0">계약 준비 대상 불러오기</div>
+    <div class="form-grid">
+      <div class="field"><label>문의자 선택</label><select id="mail-prospect-select" onchange="loadProspect()"><option value="">-- 직접 입력 --</option></select></div>
+      <div style="display:flex;align-items:flex-end"><span id="mail-prospect-info" style="font-size:12px;color:var(--gray);padding-bottom:10px"></span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-label" style="margin-top:0">입주자 정보</div>
+    <div class="form-grid col3">
+      <div class="field"><label>이름 *</label><input id="mail-name" type="text" placeholder="홍길동 / Hong Gil-dong"></div>
+      <div class="field"><label>호실 번호 *</label><input id="mail-room" type="text" placeholder="예: 301"></div>
+      <div class="field"><label>타입</label>
+        <select id="mail-type">
+          <option value="WORK">WORK (워크)</option>
+          <option value="SMART STORAGE">SMART STORAGE (수납강화)</option>
+          <option value="MULTI BUNKER">MULTI BUNKER (멀티벙커)</option>
+          <option value="FULL FURNISHED">FULL FURNISHED (풀퍼니시드)</option>
+        </select>
+      </div>
+      <div class="field"><label>입주자 구분</label>
+        <select id="mail-resident">
+          <option value="foreign">외국인 (Foreign national)</option>
+          <option value="korean">내국인 (Korean national)</option>
+          <option value="corporate">법인 (Corporate)</option>
+        </select>
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="section-label" style="margin-top:0">계약 정보</div>
+    <div class="form-grid col3">
+      <div class="field"><label>계약 시작일 *</label><input id="mail-start" type="date"></div>
+      <div class="field"><label>계약 종료일 *</label><input id="mail-end" type="date"></div>
+      <div class="field"><label>월 임대료 (₩)</label><input id="mail-rent" type="text" placeholder="예: 550,000"></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="generateMail()">메일 생성</button>
+      <button class="btn btn-secondary" onclick="clearMail()">초기화</button>
+    </div>
+  </div>
+  <div id="mail-output-section" style="display:none;margin-top:16px">
+    <div class="card">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lang-ko" onclick="switchLang('ko')">한국어</button>
+        <button class="lang-btn" id="lang-en" onclick="switchLang('en')">English</button>
+      </div>
+      <div class="mail-output" id="mail-output"></div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="copyMail()">복사</button>
+        <button class="btn btn-secondary" onclick="saveHistory()">발송 기록 저장</button>
+      </div>
+      <div id="mail-msg" class="result-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 발송 기록 -->
+<div id="page-history" class="page">
+  <div class="page-header"><div class="page-title">발송 기록</div><div class="page-sub">생성된 계약 안내 메일 기록입니다.</div></div>
+  <div id="history-list"></div>
+</div>
+
+<!-- 템플릿 -->
+<div id="page-tpl" class="page">
+  <div class="page-header"><div class="page-title">빠른 복사 템플릿</div><div class="page-sub">자주 쓰는 메시지를 직접 추가·수정·삭제할 수 있습니다.</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="tpl-ko" onclick="switchTplLang('ko')">한국어</button>
+      <button class="lang-btn" id="tpl-en" onclick="switchTplLang('en')">English</button>
+    </div>
+    <button class="btn btn-primary" onclick="openTplModal()">+ 템플릿 추가</button>
+  </div>
+  <div id="tpl-list"></div>
+</div>
+
+<!-- 임대료 계산기 -->
+<div id="page-calc" class="page">
+  <div class="page-header"><div class="page-title">임대료 계산기</div><div class="page-sub">계약 정보를 입력하고 월별 납부 스케줄을 계산합니다.</div></div>
+  <div class="card">
+    <div class="section-label" style="margin-top:0">기본 정보</div>
+    <div class="form-grid col3">
+      <div class="field"><label>사업장</label>
+        <select id="calc-site">
+          <option value="안암">안암</option>
+          <option value="선정릉">선정릉</option>
+          <option value="남영">남영</option>
+          <option value="가산">가산</option>
+          <option value="회기">회기</option>
+        </select>
+      </div>
+      <div class="field"><label>호실</label><input id="calc-room" type="text" placeholder="예: 309"></div>
+      <div class="field"><label>이름</label><input id="calc-name" type="text" placeholder="홍길동"></div>
+      <div class="field"><label>계약 시작일 *</label><input id="calc-start" type="date"></div>
+      <div class="field"><label>계약 종료일 *</label><input id="calc-end" type="date"></div>
+      <div class="field"><label>계산 방식</label>
+        <select id="calc-type">
+          <option value="빌딩케어">빌딩케어</option>
+          <option value="일반계산">일반계산</option>
+          <option value="엔코스테이">엔코스테이</option>
+          <option value="일시납">일시납</option>
+        </select>
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="section-label">금액 정보</div>
+    <div class="form-grid col3">
+      <div class="field"><label>계약금 (₩)</label><input id="calc-contract-deposit" type="text" placeholder="1,000,000"></div>
+      <div class="field"><label>보증금 / 잔금 (₩)</label><input id="calc-deposit" type="text" placeholder="1,000,000"></div>
+      <div class="field"><label>전대료 (₩) *</label><input id="calc-rent" type="text" placeholder="1,350,000"></div>
+      <div class="field"><label>일반 관리비 (₩)</label><input id="calc-mgmt" type="text" placeholder="150,000"></div>
+      <div class="field"><label>전기+가스 (₩)</label><input id="calc-utility" type="text" placeholder="90,000"></div>
+      <div class="field"><label>전기+가스 부가세 (₩)</label><input id="calc-utility-vat" type="text" placeholder="9,000"></div>
+      <div class="field"><label>수도세 (₩)</label><input id="calc-water" type="text" placeholder="10,000"></div>
+      <div class="field"><label>주차료 (₩)</label><input id="calc-parking" type="text" placeholder="0"></div>
+      <div class="field"><label>개인창고 (₩)</label><input id="calc-storage" type="text" placeholder="0"></div>
+      <div class="field"><label>창고 부가세 (₩)</label><input id="calc-storage-vat" type="text" placeholder="0"></div>
+      <div class="field"><label>퇴실청소비 (₩)</label><input id="calc-clean" type="text" placeholder="120,000"></div>
+      <div class="field"><label>청소비 선/후불</label>
+        <select id="calc-clean-type">
+          <option value="후불">후불</option>
+          <option value="선불">선불</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="runCalc()">계산하기</button>
+      <button class="btn btn-secondary" onclick="resetCalc()">초기화</button>
+    </div>
+  </div>
+  <div id="calc-result-section" style="display:none;margin-top:16px">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div style="font-size:15px;font-weight:700" id="calc-result-title"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="lang-toggle">
+            <button class="lang-btn active" id="calc-lang-ko" onclick="switchCalcLang('ko')">한국어</button>
+            <button class="lang-btn" id="calc-lang-en" onclick="switchCalcLang('en')">English</button>
+          </div>
+          <button class="btn btn-primary" onclick="saveCalcResult()">저장</button>
+        </div>
+      </div>
+      <div id="calc-output"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 계산 기록 -->
+<div id="page-calc-history" class="page">
+  <div class="page-header"><div class="page-title">계산 기록</div><div class="page-sub">저장된 임대료 계산 결과입니다. 클릭하면 입금표를 확인하고 PDF로 저장할 수 있습니다.</div></div>
+  <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px">
+    <div class="search-bar" style="margin-bottom:0;flex:1">
+      <div class="field"><label>이름 검색</label><input type="text" id="calc-search-name" placeholder="이름 입력..." oninput="renderCalcHistory()"></div>
+      <div class="field"><label>호실 검색</label><input type="text" id="calc-search-room" placeholder="호실 입력..." oninput="renderCalcHistory()"></div>
+      <span class="search-count" id="calc-history-count"></span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <label style="font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px">미리보기 언어</label>
+      <div class="lang-toggle" style="margin-bottom:0">
+        <button class="lang-btn active" id="hist-lang-ko" onclick="setHistLang('ko')">한국어</button>
+        <button class="lang-btn" id="hist-lang-en" onclick="setHistLang('en')">English</button>
+      </div>
+    </div>
+  </div>
+  <div id="calc-history-list"></div>
+</div>
+
+<!-- 입금표 뷰어 모달 -->
+<div class="modal-overlay" id="invoice-modal-overlay" onclick="closeInvoiceModal(event)">
+  <div class="modal" style="max-width:820px;width:95vw;max-height:95vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title" id="invoice-modal-title">입금표</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="lang-toggle" style="margin-right:4px">
+          <button class="lang-btn active" id="inv-lang-ko" onclick="switchInvLang('ko')">한국어</button>
+          <button class="lang-btn" id="inv-lang-en" onclick="switchInvLang('en')">English</button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="downloadInvoicePDF()">PDF 저장</button>
+        <button class="modal-close" onclick="closeInvoiceModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" style="padding:16px 20px">
+      <div style="font-size:11px;color:var(--gray);margin-bottom:10px;padding:6px 10px;background:var(--soft);border-radius:6px;border-left:3px solid var(--gold)">
+        밑줄 텍스트를 클릭하면 직접 수정할 수 있습니다. · Click underlined text to edit.
+      </div>
+      <div id="invoice-preview" style="overflow-x:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 백업/복원 -->
+<div id="page-backup" class="page">
+  <div class="page-header"><div class="page-title">백업 / 복원</div><div class="page-sub">데이터를 JSON 파일로 내보내거나 불러옵니다.</div></div>
+  <div class="card">
+    <div class="section-label" style="margin-top:0">데이터 내보내기</div>
+    <div class="info-box">문의자 정보, 발송 기록 전체를 JSON 파일로 다운로드합니다. 기능 추가 전 반드시 백업하세요.</div>
+    <button class="btn btn-primary" onclick="exportData()">JSON 다운로드</button>
+    <hr class="divider">
+    <div class="section-label">데이터 불러오기</div>
+    <div class="info-box">이전에 다운로드한 백업 파일을 선택하면 기존 데이터에 병합됩니다. (중복 항목 자동 스킵)</div>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">파일 선택</button>
+    <div id="import-msg" class="result-msg"></div>
+    <hr class="divider">
+    <div class="section-label">전체 데이터 초기화</div>
+    <div class="info-box warn">모든 문의자 정보와 발송 기록이 삭제됩니다. 반드시 백업 후 진행하세요.</div>
+    <button class="btn btn-danger" onclick="clearAllData()">전체 삭제</button>
+  </div>
+</div>
+
+<!-- 수정 모달 -->
+<div class="modal-overlay" id="edit-modal-overlay" onclick="closeEditModal(event)">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">문의자 정보 수정</div><button class="modal-close" onclick="closeEditModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-grid col3">
+        <div class="field"><label>이름 *</label><input id="edit-name" type="text"></div>
+        <div class="field"><label>연락처</label><input id="edit-phone" type="text"></div>
+        <div class="field"><label>이메일</label><input id="edit-email" type="email"></div>
+        <div class="field"><label>희망 입주일</label><input id="edit-movein" type="date"></div>
+        <div class="field"><label>선호 타입</label>
+          <select id="edit-type">
+            <option value="">-- 선택 --</option>
+            <option value="WORK">WORK (워크)</option>
+            <option value="SMART STORAGE">SMART STORAGE (수납강화)</option>
+            <option value="MULTI BUNKER">MULTI BUNKER (멀티벙커)</option>
+            <option value="FULL FURNISHED">FULL FURNISHED (풀퍼니시드)</option>
+          </select>
+        </div>
+        <div class="field"><label>입주자 구분</label>
+          <select id="edit-resident">
+            <option value="foreign">외국인 (Foreign national)</option>
+            <option value="korean">내국인 (Korean national)</option>
+            <option value="corporate">법인 (Corporate)</option>
+          </select>
+        </div>
+        <div class="field"><label>현재 상태</label>
+          <select id="edit-status">
+            <option value="상담중">상담중</option>
+            <option value="투어">투어</option>
+            <option value="리마인드">리마인드</option>
+            <option value="계약 준비">계약 준비</option>
+          </select>
+        </div>
+        <div class="field"><label>중요도</label>
+          <select id="edit-priority">
+            <option value="상">상</option>
+            <option value="중">중</option>
+            <option value="하">하</option>
+          </select>
+        </div>
+        <div class="field form-full"><label>비고</label><textarea id="edit-memo"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 템플릿 모달 -->
+<div class="modal-overlay" id="tpl-modal-overlay" onclick="closeTplModal(event)">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="tpl-modal-title">템플릿 추가</div><button class="modal-close" onclick="closeTplModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="tpl-edit-id">
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="field"><label>제목 (한국어)</label><input id="tpl-title-ko" type="text" placeholder="예: 투어 안내"></div>
+        <div class="field"><label>제목 (English)</label><input id="tpl-title-en" type="text" placeholder="e.g. Tour Inquiry"></div>
+      </div>
+      <div class="field" style="margin-bottom:14px"><label>내용 (한국어)</label><textarea id="tpl-body-ko" style="min-height:140px"></textarea></div>
+      <div class="field"><label>내용 (English)</label><textarea id="tpl-body-en" style="min-height:140px"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeTplModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveTpl()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL = 'https://zyeumxtemfmkbpviuxeo.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5ZXVteHRlbWZta2Jwdml1eGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NTkzNTUsImV4cCI6MjA5NzQzNTM1NX0.5v8SehoApGrqDwuvtwNRWJcWaStcPnS94AD3FO33ya4';
+const HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Prefer':'return=representation'};
+
+let _prospects=[], _history=[];
+
+async function sbFetch(url,options={},timeoutMs=8000){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{const res=await fetch(url,{...options,signal:controller.signal});clearTimeout(timer);return res;}
+  catch(e){clearTimeout(timer);if(e.name==='AbortError')throw new Error('요청 시간 초과');throw e;}
+}
+async function sbGet(table){
+  const order=table==='mail_history'?'saved_at.desc':'seq.asc';
+  const res=await sbFetch(`${SB_URL}/rest/v1/${table}?order=${order}`,{headers:HEADERS});
+  if(!res.ok)throw new Error(await res.text());return res.json();
+}
+async function sbInsert(table,row){
+  const res=await sbFetch(`${SB_URL}/rest/v1/${table}`,{method:'POST',headers:HEADERS,body:JSON.stringify(row)});
+  if(!res.ok)throw new Error(await res.text());return res.json();
+}
+async function sbUpdate(table,id,row){
+  const res=await sbFetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify(row)});
+  if(!res.ok)throw new Error(await res.text());return res.json();
+}
+async function sbDelete(table,id){
+  const res=await sbFetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:{...HEADERS,'Prefer':''}});
+  if(!res.ok)throw new Error(await res.text());
+}
+
+async function loadAllData(){
+  const cached=sessionStorage.getItem('hc_cache');
+  if(cached){try{const {prospects,history}=JSON.parse(cached);_prospects=prospects||[];_history=history||[];}catch{}}
+  try{_prospects=await sbGet('prospects');sessionStorage.setItem('hc_cache',JSON.stringify({prospects:_prospects,history:_history}));}
+  catch(e){console.warn('prospects 로드 실패:',e);}
+}
+let _historyLoaded=false;
+async function ensureHistoryLoaded(){
+  if(_historyLoaded)return;
+  try{_history=await sbGet('mail_history');_historyLoaded=true;sessionStorage.setItem('hc_cache',JSON.stringify({prospects:_prospects,history:_history}));}
+  catch(e){console.warn('mail_history 로드 실패:',e);}
+}
+let _templatesLoaded=false;
+function refreshCache(){sessionStorage.setItem('hc_cache',JSON.stringify({prospects:_prospects,history:_history}));}
+function showLoading(on){const el=document.getElementById('global-loading');if(el)el.style.display=on?'flex':'none';}
+
+function toggleNav(id){
+  const btn=document.querySelector(`#ng-${id} .nav-btn`),dd=document.getElementById(`dd-${id}`);
+  const isOpen=dd.classList.contains('open');
+  document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('open'));
+  if(!isOpen){dd.classList.add('open');btn.classList.add('open');}
+}
+function navTo(id){
+  document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('open'));
+  showPage(id);
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.nav-group')){
+    document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('open'));
+  }
+});
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  history.pushState({page:id},'','#'+id);
+  if(id==='search')renderSearch();
+  if(id==='history')ensureHistoryLoaded().then(renderHistory);
+  if(id==='tpl')loadTemplates().then(renderTpl);
+  if(id==='mail'){populateProspectSelect();updateContractPipeline();}
+  if(id==='calc-history')loadCalcHistories().then(renderCalcHistory);
+}
+window.addEventListener('popstate',e=>{
+  const id=e.state?.page||'reg';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(id==='search')renderSearch();
+  if(id==='history')renderHistory();
+  if(id==='tpl')renderTpl();
+  if(id==='mail'){populateProspectSelect();updateContractPipeline();}
+});
+
+function updateContractPipeline(){
+  const el=document.getElementById('contract-count');
+  if(el)el.textContent=_prospects.filter(p=>p.status==='계약 준비').length;
+}
+
+async function saveProspect(){
+  const name=document.getElementById('reg-name').value.trim();
+  if(!name){showMsg('reg-msg','이름을 입력해주세요.','err');return;}
+  const seq=_prospects.length>0?Math.max(..._prospects.map(p=>p.seq||0))+1:1;
+  const row={id:Date.now().toString(),seq,name,
+    phone:document.getElementById('reg-phone').value.trim(),
+    email:document.getElementById('reg-email').value.trim(),
+    movein:document.getElementById('reg-movein').value||null,
+    type:document.getElementById('reg-type').value,
+    resident:document.getElementById('reg-resident').value,
+    status:document.getElementById('reg-status').value,
+    priority:document.getElementById('reg-priority').value,
+    memo:document.getElementById('reg-memo').value.trim()};
+  try{showMsg('reg-msg','저장 중...','ok');await sbInsert('prospects',row);_prospects.push(row);refreshCache();showMsg('reg-msg','등록되었습니다.','ok');clearReg();}
+  catch(e){showMsg('reg-msg','저장 실패: '+e.message,'err');}
+}
+function clearReg(){
+  ['reg-name','reg-phone','reg-email','reg-movein','reg-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('reg-type').value='';
+  document.getElementById('reg-status').value='상담중';
+  document.getElementById('reg-priority').value='중';
+  document.getElementById('reg-resident').value='foreign';
+}
+
+function renderSearch(){
+  updateContractPipeline();
+  const name=document.getElementById('search-name').value||'';
+  const status=document.getElementById('search-status').value||'';
+  const priority=document.getElementById('search-priority').value||'';
+  let data=_prospects.filter(p=>(!name||p.name.toLowerCase().includes(name.toLowerCase()))&&(!status||p.status===status)&&(!priority||p.priority===priority));
+  document.getElementById('search-count').textContent=`총 ${data.length}명`;
+  const tbody=document.getElementById('search-tbody');
+  if(!tbody)return;
+  if(!data.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><p>검색 결과가 없습니다</p></div></td></tr>`;return;}
+  tbody.innerHTML=data.map(p=>`
+    <tr class="${p.status==='계약 준비'?'row-contract':''}">
+      <td class="seq">#${p.seq||'-'}</td><td class="td-name">${esc(p.name)}</td>
+      <td class="td-mono">${esc(p.phone||'-')}</td><td style="font-size:12px">${esc(p.type||'-')}</td>
+      <td class="td-mono">${p.movein||'-'}</td><td>${statusBadge(p.status)}</td><td>${priorityBadge(p.priority)}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--gray)">${esc(p.memo||'-')}</td>
+      <td><div style="display:flex;gap:4px">
+        ${p.status==='계약 준비'?`<button class="btn btn-primary btn-sm" onclick="toMail('${p.id}')">메일</button>`:''}
+        <button class="btn btn-secondary btn-sm" onclick="openEditModal('${p.id}')">수정</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProspect('${p.id}')">삭제</button>
+      </div></td>
+    </tr>`).join('');
+}
+async function deleteProspect(id){
+  if(!confirm('삭제하시겠습니까?'))return;
+  try{await sbDelete('prospects',id);_prospects=_prospects.filter(p=>p.id!==id);refreshCache();renderSearch();}
+  catch(e){alert('삭제 실패: '+e.message);}
+}
+function openEditModal(id){
+  const p=_prospects.find(x=>x.id===id);if(!p)return;
+  document.getElementById('edit-id').value=p.id;
+  document.getElementById('edit-name').value=p.name||'';
+  document.getElementById('edit-phone').value=p.phone||'';
+  document.getElementById('edit-email').value=p.email||'';
+  document.getElementById('edit-movein').value=p.movein||'';
+  document.getElementById('edit-type').value=p.type||'';
+  document.getElementById('edit-resident').value=p.resident||'foreign';
+  document.getElementById('edit-status').value=p.status||'상담중';
+  document.getElementById('edit-priority').value=p.priority||'중';
+  document.getElementById('edit-memo').value=p.memo||'';
+  document.getElementById('edit-modal-overlay').classList.add('open');
+}
+function closeEditModal(e){if(e&&e.target!==document.getElementById('edit-modal-overlay'))return;document.getElementById('edit-modal-overlay').classList.remove('open');}
+async function saveEdit(){
+  const id=document.getElementById('edit-id').value;
+  const name=document.getElementById('edit-name').value.trim();
+  if(!name){alert('이름을 입력해주세요.');return;}
+  const row={name,phone:document.getElementById('edit-phone').value.trim(),email:document.getElementById('edit-email').value.trim(),
+    movein:document.getElementById('edit-movein').value||null,type:document.getElementById('edit-type').value,
+    resident:document.getElementById('edit-resident').value,status:document.getElementById('edit-status').value,
+    priority:document.getElementById('edit-priority').value,memo:document.getElementById('edit-memo').value.trim(),
+    updated_at:new Date().toISOString()};
+  try{await sbUpdate('prospects',id,row);const i=_prospects.findIndex(x=>x.id===id);if(i!==-1)_prospects[i]={..._prospects[i],...row};refreshCache();document.getElementById('edit-modal-overlay').classList.remove('open');renderSearch();}
+  catch(e){alert('수정 실패: '+e.message);}
+}
+function toMail(id){showPage('mail');setTimeout(()=>{document.getElementById('mail-prospect-select').value=id;loadProspect();},100);}
+
+let currentLang='ko',currentMailData=null;
+function populateProspectSelect(){
+  const sel=document.getElementById('mail-prospect-select');
+  const ready=_prospects.filter(p=>p.status==='계약 준비');
+  const others=_prospects.filter(p=>p.status!=='계약 준비');
+  sel.innerHTML='<option value="">-- 직접 입력 --</option>';
+  if(ready.length){const g=document.createElement('optgroup');g.label='계약 준비 대상';ready.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=`#${p.seq} ${p.name} (${p.type||'-'})`;g.appendChild(o);});sel.appendChild(g);}
+  if(others.length){const g=document.createElement('optgroup');g.label='기타 문의자';others.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=`#${p.seq} ${p.name} (${p.status})`;g.appendChild(o);});sel.appendChild(g);}
+  updateContractPipeline();
+}
+function loadProspect(){
+  const id=document.getElementById('mail-prospect-select').value;
+  const infoEl=document.getElementById('mail-prospect-info');
+  if(!id){if(infoEl)infoEl.textContent='';return;}
+  const p=_prospects.find(x=>x.id===id);if(!p)return;
+  document.getElementById('mail-name').value=p.name;
+  if(p.type)document.getElementById('mail-type').value=p.type;
+  document.getElementById('mail-resident').value=p.resident||'foreign';
+  if(p.movein)document.getElementById('mail-start').value=p.movein;
+  if(infoEl)infoEl.textContent=`${p.email||''} ${p.phone||''}`.trim();
+}
+function generateMail(){
+  const name=document.getElementById('mail-name').value.trim();
+  const room=document.getElementById('mail-room').value.trim();
+  const start=document.getElementById('mail-start').value;
+  const end=document.getElementById('mail-end').value;
+  const rent=document.getElementById('mail-rent').value.trim();
+  const type=document.getElementById('mail-type').value;
+  const resident=document.getElementById('mail-resident').value;
+  if(!name||!room||!start||!end){alert('이름, 호실, 계약기간은 필수입니다.');return;}
+  currentMailData={name,room,start,end,rent,type,resident};
+  currentLang='ko';
+  document.getElementById('lang-ko').classList.add('active');
+  document.getElementById('lang-en').classList.remove('active');
+  document.getElementById('mail-output').textContent=buildMail('ko',currentMailData);
+  document.getElementById('mail-output-section').style.display='block';
+}
+function switchLang(lang){
+  currentLang=lang;
+  document.getElementById('lang-ko').classList.toggle('active',lang==='ko');
+  document.getElementById('lang-en').classList.toggle('active',lang==='en');
+  if(currentMailData)document.getElementById('mail-output').textContent=buildMail(lang,currentMailData);
+}
+function buildMail(lang,d){
+  const fmt=s=>s?new Date(s).toLocaleDateString(lang==='ko'?'ko-KR':'en-US',{year:'numeric',month:'long',day:'numeric'}):'-';
+  const docLine=d.resident==='korean'?(lang==='ko'?'- 신분증 사본 (주민등록증 또는 운전면허증)':"- Copy of national ID (resident registration card or driver's license)"):d.resident==='corporate'?(lang==='ko'?'- 사업자등록증\n- 실거주자 확인 서류':'- Business registration certificate\n- Documents verifying the resident\'s relationship with the company'):(lang==='ko'?'- 외국인등록증(ARC) 사본 또는 여권 사본':'- Copy of ARC (Alien Registration Card) or passport');
+  if(lang==='ko')return `안녕하세요, ${d.name}님.\n\n홈즈 안암(Homes Anam)에 관심을 가져주셔서 감사합니다.\n아래는 계약 진행 절차를 안내해 드립니다. 순서대로 진행해 주시면 됩니다.\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 1] 기본 정보 확인\n━━━━━━━━━━━━━━━━━━━━━━\n- 입주자 성함 : ${d.name}\n- 호실 번호   : ${d.room}호\n- 타입       : ${d.type}\n- 계약 기간   : ${fmt(d.start)} ~ ${fmt(d.end)}\n${d.rent?`- 월 임대료   : ₩${d.rent}`:''}\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 2] 서류 제출\n━━━━━━━━━━━━━━━━━━━━━━\n아래 서류를 이메일 또는 메시지로 제출해 주세요.\n\n${docLine}\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 3] 계약서 서명 (Modusign)\n━━━━━━━━━━━━━━━━━━━━━━\n온라인 계약 플랫폼 Modusign을 통해 계약서를 발송해 드립니다.\n서명 전 아래 항목을 꼼꼼히 확인해 주세요.\n\n- 호실 번호 및 타입\n- 계약 기간 (입주일 / 퇴실일)\n- 월 임대료 및 납부 방법\n- 보증금 금액\n- 보증금 · 임대료 · 관리비 납부 계좌\n\n※ 보증금 환불은 국내 계좌로만 가능하며, 해외 송금은 지원되지 않습니다.\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 4] 보증금 및 임대료 납부\n━━━━━━━━━━━━━━━━━━━━━━\n보증금 합계 : ₩2,000,000 (2회 분납)\n\n1차 납부 (계약서 서명 시) : ₩1,000,000\n2차 납부 (입주 당일)       : ₩1,000,000 + 첫 달 임대료 및 관리비\n\n납부 일정 및 계좌 정보는 계약서 서명 후 별도로 안내해 드립니다.\n\n※ 주말 또는 공휴일 입주 시, 직전 영업일까지 납부 및 입금 확인을 완료해 주세요.\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 5] 웰컴 가이드 수령\n━━━━━━━━━━━━━━━━━━━━━━\n최종 납부 전, 이메일로 웰컴 가이드를 발송해 드립니다.\n공용 시설 이용 방법, 생활 규칙, 계약 갱신 및 퇴실 절차 등이 포함되어 있으니 반드시 확인해 주세요.\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 6] 비밀번호 수령 및 입주\n━━━━━━━━━━━━━━━━━━━━━━\n모든 납부가 확인되면 카카오톡 채널을 통해 도어 비밀번호를 발송해 드립니다.\n(카카오톡 이용이 어려우신 경우, 대체 방법으로 안내해 드립니다.)\n\n조기 비행편 또는 일정이 빠듯한 경우, 여유 있게 미리 납부해 주시기 바랍니다.\n\n감사합니다.\n홈즈 안암 운영팀 드림\njklee@homes.global`;
+  return `Dear ${d.name},\n\nThank you for your interest in Homes Anam.\nPlease find below the step-by-step process for completing your lease agreement.\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 1] Confirmed Details\n━━━━━━━━━━━━━━━━━━━━━━\n- Resident Name : ${d.name}\n- Room Number   : ${d.room}\n- Room Type     : ${d.type}\n- Lease Period  : ${fmt(d.start)} – ${fmt(d.end)}\n${d.rent?`- Monthly Rent  : ₩${d.rent}`:''}\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 2] Document Submission\n━━━━━━━━━━━━━━━━━━━━━━\nPlease submit the following documents via email or messaging.\n\n${docLine}\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 3] Contract Signing (Modusign)\n━━━━━━━━━━━━━━━━━━━━━━\nYour lease agreement will be sent via Modusign, our online contract platform.\nPlease review the following carefully before signing:\n\n- Room number and type\n- Lease period (move-in and move-out dates)\n- Monthly rent and payment method\n- Deposit amount\n- Bank account details for all payments\n\nNote: The deposit will be refunded to a Korean bank account only. International transfers are not available.\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 4] Deposit & Rent Payment\n━━━━━━━━━━━━━━━━━━━━━━\nTotal Deposit: ₩2,000,000 (paid in two installments)\n\n1st payment (at contract signing) : ₩1,000,000\n2nd payment (on move-in day)      : ₩1,000,000 + first month's rent & management fee\n\nPayment schedule and bank details will be provided after the contract is signed.\n\nNote: If you are moving in on a weekend or public holiday, please complete payment by the last business day beforehand.\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 5] Welcome Guide\n━━━━━━━━━━━━━━━━━━━━━━\nBefore your final payment, we will send you a Welcome Guide by email.\nIt covers shared facilities, house rules, lease renewal, and move-out procedures. Please read it carefully.\n\n━━━━━━━━━━━━━━━━━━━━━━\n[Step 6] Door Password & Move-In\n━━━━━━━━━━━━━━━━━━━━━━\nOnce all payments are confirmed, your door password will be sent via the KakaoTalk channel.\n(If you are unable to use KakaoTalk, we will provide the password through an alternative method.)\n\nWe recommend completing payment in advance if you have an early flight or a tight schedule.\n\nBest regards,\nHomes Anam Operations Team\njklee@homes.global`;
+}
+function copyMail(){navigator.clipboard.writeText(document.getElementById('mail-output').textContent).then(()=>showMsg('mail-msg','클립보드에 복사되었습니다.','ok'));}
+async function saveHistory(){
+  if(!currentMailData)return;
+  const row={id:Date.now().toString(),name:currentMailData.name,room:currentMailData.room,type:currentMailData.type,resident:currentMailData.resident,start_date:currentMailData.start,end_date:currentMailData.end,rent:currentMailData.rent};
+  try{await sbInsert('mail_history',row);_history.unshift({...row,saved_at:new Date().toISOString()});refreshCache();showMsg('mail-msg','발송 기록이 저장되었습니다.','ok');}
+  catch(e){showMsg('mail-msg','저장 실패: '+e.message,'err');}
+}
+function clearMail(){
+  ['mail-name','mail-room','mail-start','mail-end','mail-rent'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mail-prospect-select').value='';
+  document.getElementById('mail-prospect-info').textContent='';
+  document.getElementById('mail-output-section').style.display='none';
+  currentMailData=null;
+}
+
+function renderHistory(){
+  const el=document.getElementById('history-list');
+  if(!_history.length){el.innerHTML=`<div class="empty"><p>저장된 발송 기록이 없습니다</p></div>`;return;}
+  el.innerHTML=_history.map(h=>`
+    <div class="history-item" onclick="viewHistory('${h.id}')">
+      <div class="history-meta">
+        <span class="history-name">${esc(h.name)}</span>
+        <span class="badge badge-contract">${esc(h.room)}호 · ${esc(h.type)}</span>
+        <span class="history-date">${new Date(h.saved_at).toLocaleString('ko-KR')}</span>
+        <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="event.stopPropagation();deleteHistory('${h.id}')">삭제</button>
+      </div>
+      <div style="font-size:12px;color:var(--gray)">${esc(h.start_date)} ~ ${esc(h.end_date)}</div>
+    </div>`).join('');
+}
+function viewHistory(id){
+  const h=_history.find(x=>x.id===id);if(!h)return;
+  currentMailData={name:h.name,room:h.room,type:h.type,resident:h.resident,start:h.start_date,end:h.end_date,rent:h.rent};
+  showPage('mail');
+  setTimeout(()=>{
+    document.getElementById('mail-name').value=h.name;
+    document.getElementById('mail-room').value=h.room;
+    document.getElementById('mail-type').value=h.type;
+    document.getElementById('mail-resident').value=h.resident||'foreign';
+    document.getElementById('mail-start').value=h.start_date;
+    document.getElementById('mail-end').value=h.end_date;
+    document.getElementById('mail-rent').value=h.rent||'';
+    generateMail();
+  },100);
+}
+async function deleteHistory(id){
+  if(!confirm('삭제하시겠습니까?'))return;
+  try{await sbDelete('mail_history',id);_history=_history.filter(x=>x.id!==id);refreshCache();renderHistory();}
+  catch(e){alert('삭제 실패: '+e.message);}
+}
+
+let tplLang='ko',_templates=[];
+async function loadTemplates(){
+  if(_templatesLoaded)return;
+  try{const res=await sbFetch(`${SB_URL}/rest/v1/templates?order=sort_order.asc,created_at.asc`,{headers:HEADERS});if(!res.ok)throw new Error(await res.text());_templates=await res.json();_templatesLoaded=true;}
+  catch(e){console.warn('템플릿 로드 실패:',e);}
+}
+function switchTplLang(lang){tplLang=lang;document.getElementById('tpl-ko').classList.toggle('active',lang==='ko');document.getElementById('tpl-en').classList.toggle('active',lang==='en');renderTpl();}
+function renderTpl(){
+  const list=document.getElementById('tpl-list');
+  if(!_templates.length){list.innerHTML=`<div class="empty"><p>등록된 템플릿이 없습니다. 추가 버튼을 눌러 템플릿을 만들어보세요.</p></div>`;return;}
+  list.innerHTML=_templates.map(t=>`
+    <div class="tpl-card">
+      <div class="tpl-title">${esc(tplLang==='ko'?t.title_ko:t.title_en)}
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" onclick="copyTpl('${t.id}')">복사</button>
+          <button class="btn btn-secondary btn-sm" onclick="openTplModal('${t.id}')">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTpl('${t.id}')">삭제</button>
+        </div>
+      </div>
+      <div class="tpl-body">${esc(tplLang==='ko'?t.body_ko:t.body_en)}</div>
+    </div>`).join('');
+}
+function copyTpl(id){
+  const t=_templates.find(x=>x.id===id);if(!t)return;
+  navigator.clipboard.writeText((tplLang==='ko'?t.body_ko:t.body_en)||'').then(()=>{
+    const toast=document.createElement('div');toast.textContent='복사되었습니다.';
+    toast.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;pointer-events:none';
+    document.body.appendChild(toast);setTimeout(()=>toast.remove(),1800);
+  });
+}
+function openTplModal(id){
+  const isEdit=!!id;
+  document.getElementById('tpl-modal-title').textContent=isEdit?'템플릿 수정':'템플릿 추가';
+  document.getElementById('tpl-edit-id').value=id||'';
+  if(isEdit){const t=_templates.find(x=>x.id===id);if(!t)return;document.getElementById('tpl-title-ko').value=t.title_ko||'';document.getElementById('tpl-title-en').value=t.title_en||'';document.getElementById('tpl-body-ko').value=t.body_ko||'';document.getElementById('tpl-body-en').value=t.body_en||'';}
+  else{['tpl-title-ko','tpl-title-en','tpl-body-ko','tpl-body-en'].forEach(i=>document.getElementById(i).value='');}
+  document.getElementById('tpl-modal-overlay').classList.add('open');
+}
+function closeTplModal(e){if(e&&e.target!==document.getElementById('tpl-modal-overlay'))return;document.getElementById('tpl-modal-overlay').classList.remove('open');}
+async function saveTpl(){
+  const id=document.getElementById('tpl-edit-id').value;
+  const titleKo=document.getElementById('tpl-title-ko').value.trim();
+  const titleEn=document.getElementById('tpl-title-en').value.trim();
+  const bodyKo=document.getElementById('tpl-body-ko').value.trim();
+  const bodyEn=document.getElementById('tpl-body-en').value.trim();
+  if(!titleKo&&!titleEn){alert('제목을 입력해주세요.');return;}
+  try{
+    if(id){await sbUpdate('templates',id,{title_ko:titleKo,title_en:titleEn,body_ko:bodyKo,body_en:bodyEn});const i=_templates.findIndex(x=>x.id===id);if(i!==-1)_templates[i]={..._templates[i],title_ko:titleKo,title_en:titleEn,body_ko:bodyKo,body_en:bodyEn};}
+    else{const row={id:Date.now().toString(),title_ko:titleKo,title_en:titleEn,body_ko:bodyKo,body_en:bodyEn,sort_order:_templates.length};await sbInsert('templates',row);_templates.push(row);}
+    document.getElementById('tpl-modal-overlay').classList.remove('open');renderTpl();
+  }catch(e){alert('저장 실패: '+e.message);}
+}
+async function deleteTpl(id){
+  if(!confirm('템플릿을 삭제하시겠습니까?'))return;
+  try{await sbDelete('templates',id);_templates=_templates.filter(x=>x.id!==id);renderTpl();}
+  catch(e){alert('삭제 실패: '+e.message);}
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify({prospects:_prospects,history:_history,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`holmes-anam-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();
+}
+async function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      const existP=new Set(_prospects.map(x=>x.id)),existH=new Set(_history.map(x=>x.id));
+      let ap=0,sp=0,ah=0,sh=0;
+      for(const p of(data.prospects||[])){if(existP.has(p.id)){sp++;continue;}try{await sbInsert('prospects',p);_prospects.push(p);ap++;}catch{}}
+      for(const h of(data.history||[])){if(existH.has(h.id)){sh++;continue;}const row={id:h.id,name:h.name,room:h.room,type:h.type,resident:h.resident,start_date:h.start||h.start_date,end_date:h.end||h.end_date,rent:h.rent};try{await sbInsert('mail_history',row);_history.unshift({...row,saved_at:new Date().toISOString()});ah++;}catch{}}
+      showMsg('import-msg',`완료 — 문의자 +${ap}(스킵 ${sp}), 기록 +${ah}(스킵 ${sh})`,'ok');
+    }catch{showMsg('import-msg','파일을 읽을 수 없습니다.','err');}
+  };
+  reader.readAsText(file);e.target.value='';
+}
+async function clearAllData(){
+  if(!confirm('전체 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'))return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/prospects?id=neq.none`,{method:'DELETE',headers:{...HEADERS,'Prefer':''}});
+    await fetch(`${SB_URL}/rest/v1/mail_history?id=neq.none`,{method:'DELETE',headers:{...HEADERS,'Prefer':''}});
+    _prospects=[];_history=[];alert('삭제되었습니다.');renderSearch();
+  }catch(e){alert('삭제 실패: '+e.message);}
+}
+
+// ======================== 임대료 계산기 ========================
+let _calcResults=[],_calcData=null,_calcLang='ko',_calcHistories=[],_invLang='ko',_currentInvData=null;
+
+const INV_DEFAULTS={
+  ko:{header:'입금 스케줄',swift:'SWIFT 코드: KOEXKRSE',bank:'은행: 하나은행',account:'계좌번호: 109-910041-46904',holder:'예금주: 홈즈스튜디오 안암',notice1:'1. 보증금 반환은 계약서에 명시된 계약자 명의의 계좌로만 가능합니다.',notice2:'2. 보증금은 퇴실 점검 완료 후 반환됩니다.',notice3:'3. 퇴실 점검 및 보증금 반환은 주말·공휴일에는 불가하며, 다음 영업일에 처리됩니다.',deposit_notice:'보증금 2,000,000원 중 1,000,000원은 계약 시, 나머지 1,000,000원은 입주일에 임대료 및 관리비와 함께 입금하시면 됩니다.',welcome:'입주를 환영합니다. 아래 입금 스케줄대로 입금을 부탁드립니다. 감사합니다.',address_label:'건물주소',address:'서울시 성북구 고려대로 30',col_no:'NO',col_month:'청구월',col_period:'납부일 / 전대료 발생기간',col_rent:'전대료',col_util:'관리비 등',col_deposit:'보증금',col_clean:'퇴실청소비',col_total:'합 계',contract_row:'계약금',contract_note:'계약 시 납부',label_name:'이름',label_room:'호실',label_deposit:'보증금',label_movein:'입주일',label_rent:'임대료',label_clean:'퇴실청소비',label_moveout:'만기일',label_mgmt:'관리비'},
+  en:{header:'Rent Payment Account Details',swift:'SWIFT Code: KOEXKRSE',bank:'Bank: Hana Bank',account:'Account Number: 109-910041-46904',holder:'Account Holder: Homes Studio Anam',notice1:'1. Security deposit refunds can be made only to a Korean bank account under the name specified in the lease.',notice2:'2. The deposit will be refunded after the move-out inspection is completed.',notice3:'3. Move-out inspections and deposit refunds are not available on weekends or public holidays, and will be processed on the next business day.',deposit_notice:"Of the ₩2,000,000 security deposit, ₩1,000,000 is due at contract signing, and the remaining ₩1,000,000 is due on move-in day along with the first month's rent and management fee.",welcome:'Welcome to Homes Anam. Please make the payments according to the schedule below. Thank you.',address_label:'Address',address:'30, Goryeodae-ro, Seongbuk-gu, Seoul, Republic of Korea',col_no:'NO',col_month:'Billing Month',col_period:'Rent Calculation Period',col_rent:'Rent Fee',col_util:'Utilities',col_deposit:'Deposit',col_clean:'Move-out Cleaning',col_total:'Total',contract_row:'Deposit',contract_note:'Due at contract signing',label_name:'Name',label_room:'Room No.',label_deposit:'Deposit',label_movein:'Move-in',label_rent:'Rent Fee',label_clean:'Cleaning Fee',label_moveout:'Move-out',label_mgmt:'Utilities'}
+};
+
+function toNum(v){const n=Number(String(v).replace(/[^\d.-]/g,''));return isNaN(n)?0:n;}
+function fmtMoney(n){return Math.round(n).toLocaleString('ko-KR');}
+function fmtDate(d){if(!d)return'-';return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtMonth(d,lang){if(!d)return'-';return lang==='ko'?d.getFullYear()+'년 '+(d.getMonth()+1)+'월':d.toLocaleDateString('en-US',{year:'numeric',month:'long'});}
+function prorateFloor10(base,used,total,partial){if(!partial)return base;return Math.floor(base*used/total/10)*10;}
+function prorateFloor1(base,used,total,partial){if(!partial)return base;return Math.round(base*used/total);}
+function allocateGroup(items,used,total,partial){
+  const bases=items.map(toNum);if(!partial)return bases;
+  const groupTotal=bases.reduce((s,v)=>s+v,0);if(!groupTotal)return bases.map(()=>0);
+  const target=Math.round(groupTotal*used/total);
+  const raws=bases.map((b,i)=>({i,raw:b*used/total,floored:Math.floor(b*used/total),rem:(b*used/total)-Math.floor(b*used/total)}));
+  const alloc=raws.map(r=>r.floored);let rem=target-alloc.reduce((s,v)=>s+v,0);
+  raws.sort((a,b)=>b.rem-a.rem||b.raw-a.raw);let k=0;while(rem>0){alloc[raws[k%raws.length].i]++;rem--;k++;}
+  return alloc;
+}
+
+function runCalc(){
+  const site=document.getElementById('calc-site').value;
+  const room=document.getElementById('calc-room').value.trim();
+  const name=document.getElementById('calc-name').value.trim();
+  const startVal=document.getElementById('calc-start').value;
+  const endVal=document.getElementById('calc-end').value;
+  const calcType=document.getElementById('calc-type').value;
+  if(!startVal||!endVal){alert('계약 시작일과 종료일을 입력해주세요.');return;}
+  const startDate=new Date(startVal);startDate.setHours(0,0,0,0);
+  const endDate=new Date(endVal);endDate.setHours(0,0,0,0);
+  if(startDate>endDate){alert('시작일이 종료일보다 늦습니다.');return;}
+  const contractDeposit=toNum(document.getElementById('calc-contract-deposit').value);
+  const deposit=toNum(document.getElementById('calc-deposit').value);
+  const rent=toNum(document.getElementById('calc-rent').value);
+  const mgmt=toNum(document.getElementById('calc-mgmt').value);
+  const utility=toNum(document.getElementById('calc-utility').value);
+  const utilityVat=toNum(document.getElementById('calc-utility-vat').value);
+  const water=toNum(document.getElementById('calc-water').value);
+  const parking=toNum(document.getElementById('calc-parking').value);
+  const storage=toNum(document.getElementById('calc-storage').value);
+  const storageVat=toNum(document.getElementById('calc-storage-vat').value);
+  const cleanFee=toNum(document.getElementById('calc-clean').value);
+  const cleanType=document.getElementById('calc-clean-type').value;
+  const inputs={site,room,name,startVal,endVal,calcType,contractDeposit,deposit,rent,mgmt,utility,utilityVat,water,parking,storage,storageVat,cleanFee,cleanType};
+  let rows=[];
+
+  if(calcType==='일시납'){
+    // 일시납: 전대료·관리비 모두 일할 계산 없이 입력 금액 그대로 1회 청구
+    // 퇴실청소비는 선/후불 설정 그대로 유지 (1행이므로 어차피 무조건 포함)
+    const totalUtil=mgmt+utility+utilityVat+water+parking+storage+storageVat;
+    const clean=cleanFee>0?cleanFee:0;
+    rows=[{
+      num:1,
+      billingStart:new Date(startDate),
+      start:new Date(startDate),
+      end:new Date(endDate),
+      used:Math.floor((endDate-startDate)/86400000)+1,
+      depositAmt:deposit,
+      rent:rent,
+      util:totalUtil,
+      clean:clean,
+      total:rent+totalUtil+deposit+clean
+    }];
+  } else if(calcType==='엔코스테이'){
+    let cur=new Date(startDate);let num=1;
+    while(cur<endDate){
+      const nextCur=new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+30);
+      const isFull=nextCur<=endDate;
+      const periodEnd=isFull?nextCur:endDate;
+      const used=Math.floor((periodEnd-cur)/86400000);
+      if(used<=0)break;
+      const endInc=new Date(periodEnd.getFullYear(),periodEnd.getMonth(),periodEnd.getDate()-1);
+      const calc=b=>{if(b<=0)return 0;if(isFull)return b;return Math.ceil((b/30)-1e-9)*used;};
+      const isFirst=num===1,isLast=periodEnd.getTime()===endDate.getTime();
+      const clean=cleanFee>0?((cleanType==='선불'&&isFirst)||(cleanType==='후불'&&isLast)?cleanFee:0):0;
+      const util=calc(mgmt)+calc(utility)+calc(utilityVat)+calc(water)+calc(parking)+calc(storage)+calc(storageVat);
+      rows.push({num,billingStart:new Date(cur),start:new Date(cur),end:endInc,used,depositAmt:0,rent:calc(rent),util,clean,total:calc(rent)+util+clean});
+      num++;cur=periodEnd;
+    }
+  } else {
+    let cur=new Date(startDate.getFullYear(),startDate.getMonth(),1);let num=1;
+    while(cur<=endDate){
+      const y=cur.getFullYear(),m=cur.getMonth();
+      const monthFirst=new Date(y,m,1),monthLast=new Date(y,m+1,0);
+      const isFirst=(y===startDate.getFullYear()&&m===startDate.getMonth());
+      const isLast=(y===endDate.getFullYear()&&m===endDate.getMonth());
+      const aStart=isFirst?startDate:monthFirst;
+      const aEnd=isLast?endDate:monthLast;
+      const total=monthLast.getDate();
+      const used=Math.floor((aEnd-aStart)/86400000)+1;
+      const partial=isFirst||isLast;
+      const depAmt=isFirst?deposit:0;
+      let rA,util;
+      if(calcType==='빌딩케어'){
+        rA=prorateFloor1(rent,used,total,partial);
+        const g=allocateGroup([mgmt,utility,utilityVat,water,parking,storage,storageVat],used,total,partial);
+        util=g.reduce((s,v)=>s+v,0);
+      } else {
+        rA=prorateFloor10(rent,used,total,partial);
+        util=prorateFloor10(mgmt,used,total,partial)+prorateFloor10(utility,used,total,partial)+prorateFloor10(utilityVat,used,total,partial)+prorateFloor10(water,used,total,partial)+prorateFloor10(parking,used,total,partial)+prorateFloor10(storage,used,total,partial)+prorateFloor10(storageVat,used,total,partial);
+      }
+      const clean=cleanFee>0?((cleanType==='선불'&&isFirst)||(cleanType==='후불'&&isLast)?cleanFee:0):0;
+      rows.push({num,billingStart:monthFirst,start:aStart,end:aEnd,used,depositAmt:depAmt,rent:rA,util,clean,total:depAmt+rA+util+clean});
+      num++;cur=new Date(y,m+1,1);
+    }
+  }
+
+  _calcResults=rows;_calcData=inputs;_calcLang='ko';
+  document.getElementById('calc-lang-ko').classList.add('active');
+  document.getElementById('calc-lang-en').classList.remove('active');
+  document.getElementById('calc-result-title').textContent=(name||'입주자')+' · '+(room||'-')+'호';
+  document.getElementById('calc-result-section').style.display='block';
+  renderCalcInvoice('ko',document.getElementById('calc-output'),inputs,rows);
+}
+
+function switchCalcLang(lang){
+  _calcLang=lang;
+  document.getElementById('calc-lang-ko').classList.toggle('active',lang==='ko');
+  document.getElementById('calc-lang-en').classList.toggle('active',lang==='en');
+  if(_calcData&&_calcResults.length)renderCalcInvoice(lang,document.getElementById('calc-output'),_calcData,_calcResults);
+}
+
+function buildInvoiceHTML(lang,data,rows,editable){
+  const t=INV_DEFAULTS[lang];
+  const totalDeposit=(data.contractDeposit||0)+(data.deposit||0);
+  const totalMgmt=data.mgmt+data.utility+data.utilityVat+data.water+data.parking+data.storage+data.storageVat;
+  const E=editable;
+  const ef=(key,val,style='')=>E?`<span contenteditable="true" data-key="${key}" style="outline:none;border-bottom:1px dashed #aaa;min-width:20px;display:inline-block;${style}">${val}</span>`:`<span>${val}</span>`;
+  const contractRow=`<tr>
+    <td style="text-align:center;border:1px solid #ccc;padding:5px 8px">0</td>
+    <td style="border:1px solid #ccc;padding:5px 8px">${ef('contract_row',t.contract_row)}</td>
+    <td colspan="2" style="border:1px solid #ccc;padding:5px 8px">${ef('contract_note',t.contract_note)}</td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px"></td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px"></td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px">₩${fmtMoney(data.contractDeposit||0)}</td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px">-</td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px;font-weight:700">₩${fmtMoney(data.contractDeposit||0)}</td>
+  </tr>`;
+  const dataRows=rows.map(r=>`<tr>
+    <td style="text-align:center;border:1px solid #ccc;padding:5px 8px">${r.num}</td>
+    <td style="border:1px solid #ccc;padding:5px 8px">${fmtMonth(r.billingStart,lang)}</td>
+    <td style="border:1px solid #ccc;padding:5px 8px">${fmtDate(r.start)}</td>
+    <td style="border:1px solid #ccc;padding:5px 8px">${fmtDate(r.end)}</td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px">₩${fmtMoney(r.rent)}</td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px">₩${fmtMoney(r.util)}</td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px">${r.depositAmt?'₩'+fmtMoney(r.depositAmt):''}</td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px">${r.clean?'₩'+fmtMoney(r.clean):''}</td>
+    <td style="text-align:right;border:1px solid #ccc;padding:5px 8px;font-weight:700">₩${fmtMoney(r.total)}</td>
+  </tr>`).join('');
+  return `<div id="invoice-doc" style="background:#fff;width:100%;max-width:794px;min-height:1123px;margin:0 auto;padding:32px 40px;font-family:'Pretendard','Outfit',sans-serif;font-size:11px;color:#000;box-sizing:border-box;border:1px solid #e0e0e0">
+    <div style="background:#c6d8b0;text-align:center;padding:8px;font-weight:700;font-size:13px;margin-bottom:12px;border:1px solid #aaa">[ ${ef('header',t.header)} ]</div>
+    <div style="margin-bottom:12px;line-height:1.9;font-size:11px">${ef('swift',t.swift)}<br>${ef('bank',t.bank)}<br>${ef('account',t.account)}<br>${ef('holder',t.holder)}</div>
+    <div style="margin-bottom:6px;font-size:10.5px;color:#333;line-height:1.8">${ef('deposit_notice',t.deposit_notice)}</div>
+    <div style="margin-bottom:14px;font-size:10.5px;color:#333;line-height:1.8">${ef('notice1',t.notice1)}<br>${ef('notice2',t.notice2)}<br>${ef('notice3',t.notice3)}</div>
+    <div style="background:#1a3a6b;color:#fff;text-align:center;padding:6px 10px;font-size:10px;margin-bottom:14px">${ef('welcome',t.welcome)}</div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:11px">
+      <tr>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700;width:80px">${ef('address_label',t.address_label)}</td>
+        <td colspan="5" style="border:1px solid #ccc;padding:5px 8px">${ef('address',t.address)}</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700">${ef('label_name',t.label_name)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px">${esc(data.name||'-')}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700">${ef('label_room',t.label_room)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px">${esc(data.room||'-')}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700">${ef('label_deposit',t.label_deposit)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px">₩${fmtMoney(totalDeposit)}</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700">${ef('label_movein',t.label_movein)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px">${data.startVal||'-'}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700">${ef('label_rent',t.label_rent)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px">₩${fmtMoney(data.rent||0)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700">${ef('label_clean',t.label_clean)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px">₩${fmtMoney(data.cleanFee||0)}</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700">${ef('label_moveout',t.label_moveout)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px">${data.endVal||'-'}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px;background:#f5f5f5;font-weight:700">${ef('label_mgmt',t.label_mgmt)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px">₩${fmtMoney(totalMgmt)}</td>
+        <td style="border:1px solid #ccc;padding:5px 8px"></td>
+        <td style="border:1px solid #ccc;padding:5px 8px"></td>
+      </tr>
+    </table>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead><tr style="background:#f0f0f0">
+        <th style="border:1px solid #ccc;padding:6px 8px;text-align:center">${t.col_no}</th>
+        <th style="border:1px solid #ccc;padding:6px 8px;text-align:center">${t.col_month}</th>
+        <th colspan="2" style="border:1px solid #ccc;padding:6px 8px;text-align:center">${t.col_period}</th>
+        <th style="border:1px solid #ccc;padding:6px 8px;text-align:center">${t.col_rent}</th>
+        <th style="border:1px solid #ccc;padding:6px 8px;text-align:center">${t.col_util}</th>
+        <th style="border:1px solid #ccc;padding:6px 8px;text-align:center">${t.col_deposit}</th>
+        <th style="border:1px solid #ccc;padding:6px 8px;text-align:center">${t.col_clean}</th>
+        <th style="border:1px solid #ccc;padding:6px 8px;text-align:center">${t.col_total}</th>
+      </tr></thead>
+      <tbody>${contractRow}${dataRows}</tbody>
+    </table>
+  </div>`;
+}
+
+function renderCalcInvoice(lang,el,data,rows){el.innerHTML=buildInvoiceHTML(lang,data,rows,false);}
+
+async function saveCalcResult(){
+  if(!_calcResults.length||!_calcData){alert('먼저 계산을 실행해주세요.');return;}
+  const row={id:Date.now().toString(),name:_calcData.name,room:_calcData.room,site:_calcData.site,start_date:_calcData.startVal,end_date:_calcData.endVal,rent:_calcData.rent||0,deposit:_calcData.deposit||0,contract_deposit:_calcData.contractDeposit||0,calc_type:_calcData.calcType,clean_fee:_calcData.cleanFee||0,inputs:_calcData,rows:_calcResults.map(r=>({...r,billingStart:fmtDate(r.billingStart),start:fmtDate(r.start),end:fmtDate(r.end)}))};
+  try{showToast('저장 중...');await sbInsert('rent_calculations',row);_calcHistories.unshift({...row,created_at:new Date().toISOString(),inputs:JSON.stringify(row.inputs),rows:JSON.stringify(row.rows)});showToast('계산 결과가 저장되었습니다.');}
+  catch(e){alert('저장 실패: '+e.message);}
+}
+
+function resetCalc(){
+  ['calc-room','calc-name','calc-start','calc-end','calc-contract-deposit','calc-deposit','calc-rent','calc-mgmt','calc-utility','calc-utility-vat','calc-water','calc-parking','calc-storage','calc-storage-vat','calc-clean'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('calc-type').value='빌딩케어';
+  document.getElementById('calc-clean-type').value='후불';
+  document.getElementById('calc-result-section').style.display='none';
+  _calcResults=[];_calcData=null;
+}
+
+async function loadCalcHistories(){
+  try{
+    const res=await sbFetch(`${SB_URL}/rest/v1/rent_calculations?order=created_at.desc`,{headers:HEADERS});
+    if(!res.ok){console.warn('rent_calculations 로드 실패:',res.status);return;}
+    const data=await res.json();
+    _calcHistories=data.map(h=>({...h,inputs:typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs),rows:typeof h.rows==='string'?h.rows:JSON.stringify(h.rows)}));
+  }catch(e){console.warn('계산기록 로드 오류(무시):',e);_calcHistories=[];}
+}
+
+let _histLang='ko';
+function setHistLang(lang){
+  _histLang=lang;
+  document.getElementById('hist-lang-ko').classList.toggle('active',lang==='ko');
+  document.getElementById('hist-lang-en').classList.toggle('active',lang==='en');
+  _calcHistories.forEach(h=>{
+    const preview=document.getElementById('preview-'+h.id);
+    const body=document.getElementById('body-'+h.id);
+    if(preview&&body&&body.style.display!=='none'){
+      try{const data=JSON.parse(typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs));const rows=(typeof h.rows==='string'?JSON.parse(h.rows):h.rows).map(r=>({...r,billingStart:new Date(r.billingStart),start:new Date(r.start),end:new Date(r.end)}));preview.innerHTML=buildInvoiceHTML(lang,data,rows,false);}catch(e){}
+    }
+  });
+}
+
+function renderCalcHistory(){
+  let arr=[..._calcHistories];
+  const nameQ=(document.getElementById('calc-search-name')||{}).value||'';
+  const roomQ=(document.getElementById('calc-search-room')||{}).value||'';
+  if(nameQ)arr=arr.filter(h=>(h.name||'').toLowerCase().includes(nameQ.toLowerCase()));
+  if(roomQ)arr=arr.filter(h=>(h.room||'').toLowerCase().includes(roomQ.toLowerCase()));
+  const countEl=document.getElementById('calc-history-count');
+  if(countEl)countEl.textContent=`총 ${arr.length}건`;
+  const el=document.getElementById('calc-history-list');
+  if(!arr.length){el.innerHTML=`<div class="empty"><p>저장된 계산 기록이 없습니다</p></div>`;return;}
+  el.innerHTML=arr.map(h=>`
+    <div class="calc-history-item" style="cursor:default;padding:0;overflow:hidden">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:14px 18px;cursor:pointer" onclick="toggleCalcItem('${h.id}')">
+        <span style="font-size:11px;color:var(--gray);margin-right:2px" id="arrow-${h.id}">▶</span>
+        <span style="font-weight:700;font-size:14px">${esc(h.name||'-')}</span>
+        <span class="badge badge-consult">${esc(h.room||'-')}호 · ${esc(h.site||'-')}</span>
+        <span class="badge badge-mid">${esc(h.calc_type||'-')}</span>
+        <span style="font-size:11px;color:var(--gray)">${new Date(h.created_at).toLocaleString('ko-KR')}</span>
+        <div style="display:flex;gap:6px;margin-left:auto" onclick="event.stopPropagation()">
+          <button class="btn btn-primary btn-sm" onclick="openInvoiceModal('${h.id}')">입금표 보기</button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadCalcDirect('${h.id}')">PDF</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCalcHistory('${h.id}')">삭제</button>
+        </div>
+      </div>
+      <div id="body-${h.id}" style="display:none;border-top:1px solid var(--line);padding:16px 18px;overflow-x:auto">
+        <div id="preview-${h.id}"></div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleCalcItem(id){
+  const body=document.getElementById('body-'+id),arrow=document.getElementById('arrow-'+id);
+  const isOpen=body.style.display!=='none';
+  body.style.display=isOpen?'none':'block';
+  arrow.textContent=isOpen?'▶':'▼';
+  if(!isOpen){
+    const preview=document.getElementById('preview-'+id);
+    const h=_calcHistories.find(x=>x.id===id);if(!h)return;
+    try{const data=JSON.parse(typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs));const rows=(typeof h.rows==='string'?JSON.parse(h.rows):h.rows).map(r=>({...r,billingStart:new Date(r.billingStart),start:new Date(r.start),end:new Date(r.end)}));preview.innerHTML=buildInvoiceHTML(_histLang,data,rows,false);}
+    catch(e){preview.innerHTML='<p style="color:var(--gray);font-size:12px">미리보기를 불러올 수 없습니다.</p>';}
+  }
+}
+
+function downloadCalcDirect(id){
+  const h=_calcHistories.find(x=>x.id===id);if(!h)return;
+  try{const data=JSON.parse(typeof h.inputs==='string'?h.inputs:JSON.stringify(h.inputs));const rows=(typeof h.rows==='string'?JSON.parse(h.rows):h.rows).map(r=>({...r,billingStart:new Date(r.billingStart),start:new Date(r.start),end:new Date(r.end)}));_currentInvData={data,rows};downloadInvoicePDF();}
+  catch(e){alert('PDF 생성 실패: '+e.message);}
+}
+
+function openInvoiceModal(id){
+  const h=_calcHistories.find(x=>x.id===id);if(!h)return;
+  const data=JSON.parse(h.inputs||'{}');
+  const rows=JSON.parse(h.rows||'[]').map(r=>({...r,billingStart:new Date(r.billingStart),start:new Date(r.start),end:new Date(r.end)}));
+  _currentInvData={data,rows};_invLang='ko';
+  document.getElementById('inv-lang-ko').classList.add('active');
+  document.getElementById('inv-lang-en').classList.remove('active');
+  document.getElementById('invoice-modal-title').textContent=(data.name||'-')+' · '+(data.room||'-')+'호 입금표';
+  document.getElementById('invoice-preview').innerHTML=buildInvoiceHTML('ko',data,rows,true);
+  document.getElementById('invoice-modal-overlay').classList.add('open');
+}
+
+function switchInvLang(lang){
+  _invLang=lang;
+  document.getElementById('inv-lang-ko').classList.toggle('active',lang==='ko');
+  document.getElementById('inv-lang-en').classList.toggle('active',lang==='en');
+  if(_currentInvData)document.getElementById('invoice-preview').innerHTML=buildInvoiceHTML(lang,_currentInvData.data,_currentInvData.rows,true);
+}
+
+function closeInvoiceModal(e){if(e&&e.target!==document.getElementById('invoice-modal-overlay'))return;document.getElementById('invoice-modal-overlay').classList.remove('open');}
+
+function downloadInvoicePDF(){
+  if(!_currentInvData)return;
+  const html=buildInvoiceHTML(_invLang,_currentInvData.data,_currentInvData.rows,false);
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>*{box-sizing:border-box;margin:0;padding:0}body{background:#fff;font-family:'Pretendard','Outfit',sans-serif}@page{size:A4 portrait;margin:0}@media print{body{margin:0}#invoice-doc{border:none!important;width:210mm;min-height:297mm;padding:20mm 18mm}}</style>
+    </head><body>${html}<script>window.onload=function(){window.print();window.close();}<\/script></body></html>`);
+  win.document.close();
+}
+
+async function deleteCalcHistory(id){
+  if(!confirm('삭제하시겠습니까?'))return;
+  try{await sbDelete('rent_calculations',id);_calcHistories=_calcHistories.filter(x=>x.id!==id);renderCalcHistory();}
+  catch(e){alert('삭제 실패: '+e.message);}
+}
+
+function showToast(msg){
+  const t=document.createElement('div');t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;pointer-events:none';
+  document.body.appendChild(t);setTimeout(()=>t.remove(),1800);
+}
+function statusBadge(s){const map={상담중:'consult',투어:'tour',리마인드:'remind','계약 준비':'contract'};return `<span class="badge badge-${map[s]||'consult'}">${s||'-'}</span>`;}
+function priorityBadge(p){const map={상:'high',중:'mid',하:'low'};const label={상:'상',중:'중',하:'하'};return `<span class="badge badge-${map[p]||'mid'}">${label[p]||p||'-'}</span>`;}
+function showMsg(id,msg,type){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.className=`result-msg ${type}`;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+const _loadingTimer=setTimeout(()=>{showLoading(false);console.warn('로딩 타임아웃 — 강제 해제');},10000);
+(async()=>{
+  try{await loadAllData();}catch(e){console.error('초기화 오류:',e);}
+  finally{clearTimeout(_loadingTimer);showLoading(false);renderSearch();populateProspectSelect();}
+})();
+</script>
+</body>
+</html>

@@ -559,7 +559,7 @@ td .btn-group{margin-top:0}
 
 <script>
 const SB_URL = 'https://zyeumxtemfmkbpviuxeo.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5ZXVteHRlbWZta2Jwdml1eGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NTkzNTUsImV4cCI6MjA5NzQzNTM1NX0.5v8SehoApGrqDwuvtwNRWJcWaStcPnS94AD3FO33ya4';
+const SB_KEY = 'sb_publishable_TuH7QP5ejpplWGn9OiSz3w_joV0ffWJ';
 const HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Prefer':'return=representation'};
 
 let _prospects=[], _history=[];
@@ -916,10 +916,40 @@ async function clearAllData(){
 // ======================== 임대료 계산기 ========================
 let _calcResults=[],_calcData=null,_calcLang='ko',_calcHistories=[],_invLang='ko',_currentInvData=null;
 
-const INV_DEFAULTS={
-  ko:{header:'입금 스케줄',swift:'SWIFT 코드: KOEXKRSE',bank:'은행: 하나은행',account:'계좌번호: 109-910041-46904',holder:'예금주: 홈즈스튜디오 안암',notice1:'1. 보증금 반환은 계약서에 명시된 계약자 명의의 계좌로만 가능합니다.',notice2:'2. 보증금은 퇴실 점검 완료 후 반환됩니다.',notice3:'3. 퇴실 점검 및 보증금 반환은 주말·공휴일에는 불가하며, 다음 영업일에 처리됩니다.',deposit_notice:'보증금 2,000,000원 중 1,000,000원은 계약 시, 나머지 1,000,000원은 입주일에 임대료 및 관리비와 함께 입금하시면 됩니다.',welcome:'입주를 환영합니다. 아래 입금 스케줄대로 입금을 부탁드립니다. 감사합니다.',address_label:'건물주소',address:'서울시 성북구 고려대로 30',col_no:'NO',col_month:'청구월',col_period:'납부일 / 전대료 발생기간',col_rent:'전대료',col_util:'관리비 등',col_deposit:'보증금',col_clean:'퇴실청소비',col_total:'합 계',contract_row:'계약금',contract_note:'계약 시 납부',label_name:'이름',label_room:'호실',label_deposit:'보증금',label_movein:'입주일',label_rent:'임대료',label_clean:'퇴실청소비',label_moveout:'만기일',label_mgmt:'관리비'},
-  en:{header:'Rent Payment Account Details',swift:'SWIFT Code: KOEXKRSE',bank:'Bank: Hana Bank',account:'Account Number: 109-910041-46904',holder:'Account Holder: Homes Studio Anam',notice1:'1. Security deposit refunds can be made only to a Korean bank account under the name specified in the lease.',notice2:'2. The deposit will be refunded after the move-out inspection is completed.',notice3:'3. Move-out inspections and deposit refunds are not available on weekends or public holidays, and will be processed on the next business day.',deposit_notice:"Of the ₩2,000,000 security deposit, ₩1,000,000 is due at contract signing, and the remaining ₩1,000,000 is due on move-in day along with the first month's rent and management fee.",welcome:'Welcome to Homes Anam. Please make the payments according to the schedule below. Thank you.',address_label:'Address',address:'30, Goryeodae-ro, Seongbuk-gu, Seoul, Republic of Korea',col_no:'NO',col_month:'Billing Month',col_period:'Rent Calculation Period',col_rent:'Rent Fee',col_util:'Utilities',col_deposit:'Deposit',col_clean:'Move-out Cleaning',col_total:'Total',contract_row:'Deposit',contract_note:'Due at contract signing',label_name:'Name',label_room:'Room No.',label_deposit:'Deposit',label_movein:'Move-in',label_rent:'Rent Fee',label_clean:'Cleaning Fee',label_moveout:'Move-out',label_mgmt:'Utilities'}
+// 사업장별 계좌·주소 데이터
+const SITE_DATA = {
+  '안암': {
+    ko: { swift:'SWIFT 코드: KOEXKRSE', bank:'은행: 하나은행', account:'계좌번호: 109-910041-46904', holder:'예금주: 홈즈스튜디오 안암', address_label:'건물주소', address:'서울시 성북구 고려대로 30' },
+    en: { swift:'SWIFT Code: KOEXKRSE', bank:'Bank: Hana Bank', account:'Account Number: 109-910041-46904', holder:'Account Holder: Homes Studio Anam', address_label:'Address', address:'30, Goryeodae-ro, Seongbuk-gu, Seoul, Republic of Korea' }
+  },
+  '선정릉': {
+    ko: { swift:'SWIFT 코드: KOEXKRSE', bank:'은행: 하나은행', account:'계좌번호: 881-910003-10604', holder:'예금주: 주식회사홈즈컴퍼니', address_label:'건물주소', address:'서울특별시 강남구 봉은사로 404' },
+    en: { swift:'SWIFT Code: KOEXKRSE', bank:'Bank: Hana Bank', account:'Account Number: 881-910003-10604', holder:'Account Holder: Homes Company Co., Ltd.', address_label:'Address', address:'404, Bongeunsa-ro, Gangnam-gu, Seoul, Republic of Korea' }
+  },
+  '남영': {
+    ko: { swift:'SWIFT 코드: KOEXKRSE', bank:'은행: 하나은행', account:'계좌번호: 881-910003-10604', holder:'예금주: 주식회사홈즈컴퍼니', address_label:'건물주소', address:'서울 용산구 한강대로 77길 15' },
+    en: { swift:'SWIFT Code: KOEXKRSE', bank:'Bank: Hana Bank', account:'Account Number: 881-910003-10604', holder:'Account Holder: Homes Company Co., Ltd.', address_label:'Address', address:'15, Hangang-daero 77-gil, Yongsan-gu, Seoul, Republic of Korea' }
+  },
+  '가산': {
+    ko: { swift:'SWIFT 코드: KOEXKRSE', bank:'은행: 하나은행', account:'계좌번호: [미입력]', holder:'예금주: [미입력]', address_label:'건물주소', address:'[미입력]' },
+    en: { swift:'SWIFT Code: KOEXKRSE', bank:'Bank: Hana Bank', account:'Account Number: [TBD]', holder:'Account Holder: [TBD]', address_label:'Address', address:'[TBD]' }
+  },
+  '회기': {
+    ko: { swift:'SWIFT 코드: KOEXKRSE', bank:'은행: 하나은행', account:'계좌번호: [미입력]', holder:'예금주: [미입력]', address_label:'건물주소', address:'[미입력]' },
+    en: { swift:'SWIFT Code: KOEXKRSE', bank:'Bank: Hana Bank', account:'Account Number: [TBD]', holder:'Account Holder: [TBD]', address_label:'Address', address:'[TBD]' }
+  }
 };
+
+const INV_DEFAULTS={
+  ko:{header:'입금 스케줄',notice1:'1. 보증금 반환은 계약서에 명시된 계약자 명의의 계좌로만 가능합니다.',notice2:'2. 보증금은 퇴실 점검 완료 후 반환됩니다.',notice3:'3. 퇴실 점검 및 보증금 반환은 주말·공휴일에는 불가하며, 다음 영업일에 처리됩니다.',deposit_notice:'보증금 2,000,000원 중 1,000,000원은 계약 시, 나머지 1,000,000원은 입주일에 임대료 및 관리비와 함께 입금하시면 됩니다.',welcome:'입주를 환영합니다. 아래 입금 스케줄대로 입금을 부탁드립니다. 감사합니다.',col_no:'NO',col_month:'청구월',col_period:'납부일 / 전대료 발생기간',col_rent:'전대료',col_util:'관리비 등',col_deposit:'보증금',col_clean:'퇴실청소비',col_total:'합 계',contract_row:'계약금',contract_note:'계약 시 납부',label_name:'이름',label_room:'호실',label_deposit:'보증금',label_movein:'입주일',label_rent:'임대료',label_clean:'퇴실청소비',label_moveout:'만기일',label_mgmt:'관리비'},
+  en:{header:'Rent Payment Account Details',notice1:'1. Security deposit refunds can be made only to a Korean bank account under the name specified in the lease.',notice2:'2. The deposit will be refunded after the move-out inspection is completed.',notice3:'3. Move-out inspections and deposit refunds are not available on weekends or public holidays, and will be processed on the next business day.',deposit_notice:"Of the ₩2,000,000 security deposit, ₩1,000,000 is due at contract signing, and the remaining ₩1,000,000 is due on move-in day along with the first month's rent and management fee.",welcome:'Welcome to Homes Anam. Please make the payments according to the schedule below. Thank you.',col_no:'NO',col_month:'Billing Month',col_period:'Rent Calculation Period',col_rent:'Rent Fee',col_util:'Utilities',col_deposit:'Deposit',col_clean:'Move-out Cleaning',col_total:'Total',contract_row:'Deposit',contract_note:'Due at contract signing',label_name:'Name',label_room:'Room No.',label_deposit:'Deposit',label_movein:'Move-in',label_rent:'Rent Fee',label_clean:'Cleaning Fee',label_moveout:'Move-out',label_mgmt:'Utilities'}
+};
+
+// 사업장 선택에 따라 계좌·주소를 INV_DEFAULTS에 병합해서 반환
+function getSiteDefaults(lang, site){
+  const sd = SITE_DATA[site] || SITE_DATA['안암'];
+  return Object.assign({}, INV_DEFAULTS[lang], sd[lang]);
+}
 
 function toNum(v){const n=Number(String(v).replace(/[^\d.-]/g,''));return isNaN(n)?0:n;}
 function fmtMoney(n){return Math.round(n).toLocaleString('ko-KR');}
@@ -964,8 +994,6 @@ function runCalc(){
   let rows=[];
 
   if(calcType==='일시납'){
-    // 일시납: 전대료·관리비 모두 일할 계산 없이 입력 금액 그대로 1회 청구
-    // 퇴실청소비는 선/후불 설정 그대로 유지 (1행이므로 어차피 무조건 포함)
     const totalUtil=mgmt+utility+utilityVat+water+parking+storage+storageVat;
     const clean=cleanFee>0?cleanFee:0;
     rows=[{
@@ -1040,7 +1068,8 @@ function switchCalcLang(lang){
 }
 
 function buildInvoiceHTML(lang,data,rows,editable){
-  const t=INV_DEFAULTS[lang];
+  // 사업장에 따라 계좌·주소 자동 적용
+  const t=getSiteDefaults(lang, data.site||'안암');
   const totalDeposit=(data.contractDeposit||0)+(data.deposit||0);
   const totalMgmt=data.mgmt+data.utility+data.utilityVat+data.water+data.parking+data.storage+data.storageVat;
   const E=editable;
